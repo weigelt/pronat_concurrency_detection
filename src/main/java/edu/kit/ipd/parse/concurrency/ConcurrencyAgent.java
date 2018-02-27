@@ -2,8 +2,10 @@ package edu.kit.ipd.parse.concurrency;
 
 import java.util.List;
 
+import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
 import edu.kit.ipd.parse.concurrency.data.Utterance;
+import edu.kit.ipd.parse.concurrency.filter.GrammarFilter;
 import edu.kit.ipd.parse.concurrency.filter.KeyphraseFilter;
 import edu.kit.ipd.parse.luna.agent.AbstractAgent;
 import edu.kit.ipd.parse.luna.graph.ParseGraph;
@@ -11,11 +13,13 @@ import edu.kit.ipd.parse.luna.graph.ParseGraph;
 public class ConcurrencyAgent extends AbstractAgent {
 
 	KeyphraseFilter kf;
+	GrammarFilter gf;
 	Utterance utterance;
 
 	@Override
 	public void init() {
 		kf = new KeyphraseFilter();
+		gf = new GrammarFilter();
 	}
 
 	@Override
@@ -27,7 +31,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 		ParseGraph graphAsParseGraph = (ParseGraph) graph;
 		utterance = new Utterance(graphAsParseGraph);
 		List<Keyphrase> keywords = kf.filter(utterance.giveUtteranceAsNodeList());
-
+		List<ConcurrentAction> conActions = gf.filter(keywords);
 	}
 
 	private void checkOptionalPreconditionds() {

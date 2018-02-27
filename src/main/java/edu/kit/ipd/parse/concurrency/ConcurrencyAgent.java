@@ -25,6 +25,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 		checkOptionalPreconditionds();
 
 		ParseGraph graphAsParseGraph = (ParseGraph) graph;
+		utterance = new Utterance(graphAsParseGraph);
 		List<Keyphrase> keywords = kf.filter(utterance.giveUtteranceAsNodeList());
 
 	}

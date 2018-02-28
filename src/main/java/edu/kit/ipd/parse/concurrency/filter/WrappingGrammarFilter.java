@@ -29,7 +29,7 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 		INode newLeftNode = keyphrase.getAttachedNode().get(0);
 		INode newRightNode = keyphrase.getAttachedNode().get(keyphrase.getAttachedNode().size() - 1);
 
-		do {
+		while (!newLeftNode.getIncomingArcsOfType(nextArcType).isEmpty() && secondLeftAction == null) {
 			newLeftNode = newLeftNode.getIncomingArcsOfType(nextArcType).get(0).getSourceNode();
 			if (newLeftNode.getAttributeValue("role") != null
 					&& newLeftNode.getAttributeValue("role").toString().equalsIgnoreCase("PREDICATE")) {
@@ -44,9 +44,9 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 					leftAnd = true;
 				}
 			}
-		} while (!newLeftNode.getIncomingArcsOfType(nextArcType).isEmpty() && secondLeftAction == null);
+		}
 
-		do {
+		while (!newRightNode.getOutgoingArcsOfType(nextArcType).isEmpty() && secondRightAction == null) {
 			newRightNode = newRightNode.getOutgoingArcsOfType(nextArcType).get(0).getTargetNode();
 			if (newRightNode.getAttributeValue("role") != null
 					&& newRightNode.getAttributeValue("role").toString().equalsIgnoreCase("PREDICATE")) {
@@ -61,7 +61,7 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 					rightAnd = true;
 				}
 			}
-		} while (!newRightNode.getOutgoingArcsOfType(nextArcType).isEmpty() && secondRightAction == null);
+		}
 
 		INode depNodeBegin = null;
 		INode depNodeEnd = null;

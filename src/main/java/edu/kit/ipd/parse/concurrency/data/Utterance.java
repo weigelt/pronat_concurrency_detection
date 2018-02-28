@@ -1,5 +1,6 @@
 package edu.kit.ipd.parse.concurrency.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.kit.ipd.parse.luna.graph.IArc;
@@ -15,6 +16,7 @@ public class Utterance {
 
 	public Utterance(ParseGraph fullGraph) {
 		this.fullGraph = fullGraph;
+		this.utteranceAsNodeList = new ArrayList<>();
 		createUtterance();
 	}
 

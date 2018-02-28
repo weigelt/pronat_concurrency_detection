@@ -87,11 +87,12 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 			for (IArc iArc : outgoingFirstActionArcs) {
 				if (iArc.getAttributeValue("type").toString().equalsIgnoreCase("PREDICATE_TO_PARA")) {
 					INode currTargetNode = iArc.getTargetNode();
+					//TODO: check if position is right of keyphrase.start
 					if ((int) currTargetNode.getAttributeValue("position") > end) {
-						while (currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).size() > 1) {
+						while (currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).size() > 0) {
 							if (currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).size() == 1) {
 								currTargetNode = currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).get(0).getTargetNode();
-							} else if (currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).size() == 1) {
+							} else if (currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).size() > 1) {
 								//TODO what iff the assumption (we only have a INSIDE_CHUNK node) doesn't hold?
 							}
 						}

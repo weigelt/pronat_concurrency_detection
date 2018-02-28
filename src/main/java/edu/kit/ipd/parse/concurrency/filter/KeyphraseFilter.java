@@ -14,23 +14,53 @@ import edu.kit.ipd.parse.luna.graph.INode;
 public class KeyphraseFilter {
 	//TODO: put into config file
 	private static Set<List<String>> wrappingKeyphrases = new HashSet<List<String>>();
+	private static Set<List<String>> separatingKeyphrases = new HashSet<List<String>>();
+	private static Set<List<String>> openingKeyphrases = new HashSet<List<String>>();
 
 	public KeyphraseFilter() {
 		//TODO: implement as config extractor
+		//TODO: completeness?
+		//TODO: what about ambiguous types?
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "once")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("simultaneously")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("coevally")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("coincidentally")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("concurrent")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("synchronistically")));
+
+		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "the", "same", "time")));
+		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("while")));
+		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("additionally")));
+
+		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "the", "same", "time")));
+		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("additionally")));
+		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("meanwhile")));
+		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("in", "the", "meantime")));
+		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("during")));
 	}
 
 	public List<Keyphrase> filter(List<INode> utteranceAsNodeList) {
 		List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 		for (int i = 0; i < utteranceAsNodeList.size(); i++) {
-			//TODO: implement remaining keyphrases
+			//TODO: reduce code duplication
 			for (List<String> keyphrase : wrappingKeyphrases) {
 				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, i, keyphrase, 0, new Keyphrase(KeyphraseType.WRAPPING));
+				if (currKP != null) {
+					keyphrases.add(currKP);
+					i = i + keyphrase.size() - 1;
+					break;
+				}
+			}
+			for (List<String> keyphrase : separatingKeyphrases) {
+				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, i, keyphrase, 0, new Keyphrase(KeyphraseType.SEPARATING));
+				if (currKP != null) {
+					keyphrases.add(currKP);
+					i = i + keyphrase.size() - 1;
+					break;
+				}
+			}
+			for (List<String> keyphrase : openingKeyphrases) {
+				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, i, keyphrase, 0, new Keyphrase(KeyphraseType.OPENING));
 				if (currKP != null) {
 					keyphrases.add(currKP);
 					i = i + keyphrase.size() - 1;
@@ -56,5 +86,4 @@ public class KeyphraseFilter {
 		}
 		return null;
 	}
-
 }

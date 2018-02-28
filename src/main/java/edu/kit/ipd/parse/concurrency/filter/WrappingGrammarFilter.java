@@ -71,7 +71,7 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 		} else if (firstLeftAction != null && secondLeftAction != null && leftAnd) {
 			List<? extends IArc> outgoingSecondActionArcs = secondLeftAction.getOutgoingArcsOfType(actionAnalyzerArcType);
 			for (IArc iArc : outgoingSecondActionArcs) {
-				if (iArc.getAttributeValue("type").toString().equalsIgnoreCase(" PREDICATE_TO_PARA")) {
+				if (iArc.getAttributeValue("type").toString().equalsIgnoreCase("PREDICATE_TO_PARA")) {
 					INode currTargetNode = iArc.getTargetNode();
 					if ((int) currTargetNode.getAttributeValue("position") < start) {
 						start = (int) currTargetNode.getAttributeValue("position");
@@ -83,9 +83,16 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 			}
 			List<? extends IArc> outgoingFirstActionArcs = firstLeftAction.getOutgoingArcsOfType(actionAnalyzerArcType);
 			for (IArc iArc : outgoingFirstActionArcs) {
-				if (iArc.getAttributeValue("type").toString().equalsIgnoreCase(" PREDICATE_TO_PARA")) {
+				if (iArc.getAttributeValue("type").toString().equalsIgnoreCase("PREDICATE_TO_PARA")) {
 					INode currTargetNode = iArc.getTargetNode();
 					if ((int) currTargetNode.getAttributeValue("position") > end) {
+						while (currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).size() > 1) {
+							if (currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).size() == 1) {
+								currTargetNode = currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).get(0).getTargetNode();
+							} else if (currTargetNode.getOutgoingArcsOfType(actionAnalyzerArcType).size() == 1) {
+								//TODO what iff the assumption (we only have a INSIDE_CHUNK node) doesn't hold?
+							}
+						}
 						end = (int) currTargetNode.getAttributeValue("position");
 						depNodeEnd = currTargetNode;
 					}

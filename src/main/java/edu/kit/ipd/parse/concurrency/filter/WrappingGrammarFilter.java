@@ -55,7 +55,7 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 					rightAnd = true;
 				}
 			}
-		} while (!newRightNode.getOutgoingArcsOfType(nextArcType).isEmpty() && secondLeftAction == null);
+		} while (!newRightNode.getOutgoingArcsOfType(nextArcType).isEmpty() && secondRightAction == null);
 
 		//if ()
 

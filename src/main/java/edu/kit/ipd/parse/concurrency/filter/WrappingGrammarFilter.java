@@ -31,7 +31,8 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
 		do {
 			newLeftNode = newLeftNode.getIncomingArcsOfType(nextArcType).get(0).getSourceNode();
-			if (newLeftNode.getAttributeValue("Role").toString().equalsIgnoreCase("PREDICATE")) {
+			if (newLeftNode.getAttributeValue("role") != null
+					&& newLeftNode.getAttributeValue("role").toString().equalsIgnoreCase("PREDICATE")) {
 				if (firstLeftAction == null) {
 					firstLeftAction = newLeftNode;
 				} else {
@@ -47,7 +48,8 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
 		do {
 			newRightNode = newRightNode.getOutgoingArcsOfType(nextArcType).get(0).getTargetNode();
-			if (newRightNode.getAttributeValue("Role").toString().equalsIgnoreCase("PREDICATE")) {
+			if (newRightNode.getAttributeValue("role") != null
+					&& newRightNode.getAttributeValue("role").toString().equalsIgnoreCase("PREDICATE")) {
 				if (firstRightAction == null) {
 					firstRightAction = newRightNode;
 				} else {

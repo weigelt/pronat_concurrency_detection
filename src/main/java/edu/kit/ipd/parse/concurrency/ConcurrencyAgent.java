@@ -15,6 +15,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 	KeyphraseFilter kf;
 	GrammarFilter gf;
 	Utterance utterance;
+	List<ConcurrentAction> conActions;
 
 	@Override
 	public void init() {
@@ -31,7 +32,16 @@ public class ConcurrencyAgent extends AbstractAgent {
 		ParseGraph graphAsParseGraph = (ParseGraph) graph;
 		utterance = new Utterance(graphAsParseGraph);
 		List<Keyphrase> keywords = kf.filter(utterance.giveUtteranceAsNodeList());
-		List<ConcurrentAction> conActions = gf.filter(keywords);
+		conActions = gf.filter(keywords);
+	}
+
+	/**
+	 * Only for testing
+	 * 
+	 * @return
+	 */
+	public List<ConcurrentAction> getConcurrentActions() {
+		return conActions;
 	}
 
 	private void checkOptionalPreconditionds() {

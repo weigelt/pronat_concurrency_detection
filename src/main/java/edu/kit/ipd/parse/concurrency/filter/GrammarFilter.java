@@ -30,7 +30,7 @@ public class GrammarFilter {
 			default:
 				break;
 			}
-			conActions.add(spg.filter());
+			conActions.add(spg.filter(keyphrase));
 		}
 		return conActions;
 	}

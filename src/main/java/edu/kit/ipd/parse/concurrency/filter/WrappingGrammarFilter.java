@@ -11,6 +11,10 @@ import edu.kit.ipd.parse.luna.graph.ParseGraph;
 
 public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
+	private ParseGraph pgStub;
+	private IArcType nextArcType;
+	private IArcType actionAnalyzerArcType;
+
 	private static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
 	private static final String ARC_TYPE_RELATION = "relation";
 	private static final String ATTRIBUTE_NAME_POSITION = "position";
@@ -21,66 +25,39 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 	private static final String ATTRIBUTE_VALUE_PREDICATE = "PREDICATE";
 	private static final String WORD_AND = "and";
 
+	public WrappingGrammarFilter() {
+		pgStub = new ParseGraph();
+		nextArcType = pgStub.createArcType(ARC_TYPE_RELATION);
+		//		nextArcType.addAttributeToType("String", "value");
+		actionAnalyzerArcType = pgStub.createArcType(ARC_TYPE_RELATION_IN_ACTION);
+	}
+
 	@Override
 	public ConcurrentAction filter(Keyphrase keyphrase) {
 
-		IArcType nextArcType = new ParseGraph().createArcType(ARC_TYPE_RELATION);
-		//		nextArcType.addAttributeToType("String", "value");
-		IArcType actionAnalyzerArcType = new ParseGraph().createArcType(ARC_TYPE_RELATION_IN_ACTION);
+		INode[] leftActions = new INode[3];
+		leftActions[0] = keyphrase.getAttachedNode().get(0);
+		INode[] rightActions = new INode[3];
+		rightActions[0] = keyphrase.getAttachedNode().get(keyphrase.getAttachedNode().size() - 1);
 
-		INode firstLeftAction = null;
-		INode secondLeftAction = null;
-		INode firstRightAction = null;
-		INode secondRightAction = null;
+		boolean leftAnd = findActionNodes(leftActions, true);
+		boolean rightAnd = findActionNodes(rightActions, false);
 
-		boolean leftAnd = false;
-		boolean rightAnd = false;
-
-		INode newLeftNode = keyphrase.getAttachedNode().get(0);
-		INode newRightNode = keyphrase.getAttachedNode().get(keyphrase.getAttachedNode().size() - 1);
-
-		while (!newLeftNode.getIncomingArcsOfType(nextArcType).isEmpty() && secondLeftAction == null) {
-			newLeftNode = newLeftNode.getIncomingArcsOfType(nextArcType).get(0).getSourceNode();
-			if (newLeftNode.getAttributeValue(ATTRIBUTE_NAME_ROLE) != null
-					&& newLeftNode.getAttributeValue(ATTRIBUTE_NAME_ROLE).toString().equalsIgnoreCase(ATTRIBUTE_VALUE_PREDICATE)) {
-				if (firstLeftAction == null) {
-					firstLeftAction = newLeftNode;
-				} else {
-					secondLeftAction = newLeftNode;
-				}
-			}
-			if (firstLeftAction != null) {
-				if (newLeftNode.getAttributeValue(ATTRIBUTE_NAME_VALUE).toString().equalsIgnoreCase(WORD_AND)) {
-					leftAnd = true;
-				}
-			}
-		}
-
-		while (!newRightNode.getOutgoingArcsOfType(nextArcType).isEmpty() && secondRightAction == null) {
-			newRightNode = newRightNode.getOutgoingArcsOfType(nextArcType).get(0).getTargetNode();
-			if (newRightNode.getAttributeValue(ATTRIBUTE_NAME_ROLE) != null
-					&& newRightNode.getAttributeValue(ATTRIBUTE_NAME_ROLE).toString().equalsIgnoreCase(ATTRIBUTE_VALUE_PREDICATE)) {
-				if (firstRightAction == null) {
-					firstRightAction = newRightNode;
-				} else {
-					secondRightAction = newRightNode;
-				}
-			}
-			if (firstRightAction != null) {
-				if (newRightNode.getAttributeValue(ATTRIBUTE_NAME_VALUE).toString().equalsIgnoreCase(WORD_AND)) {
-					rightAnd = true;
-				}
-			}
-		}
+		INode firstLeftAction = leftActions[1];
+		INode secondLeftAction = leftActions[2];
+		INode firstRightAction = rightActions[1];
+		INode secondRightAction = rightActions[2];
 
 		INode depNodeBegin = null;
 		INode depNodeEnd = null;
-		int start = Integer.MAX_VALUE;
-		int end = Integer.MIN_VALUE;
+		int start;
+		int end;
 
 		if (firstRightAction != null && secondRightAction != null && rightAnd) {
 			//TODO
 		} else if (firstLeftAction != null && secondLeftAction != null && leftAnd) {
+			depNodeBegin = secondLeftAction;
+			start = (int) secondLeftAction.getAttributeValue(ATTRIBUTE_NAME_POSITION);
 			List<? extends IArc> outgoingSecondActionArcs = secondLeftAction.getOutgoingArcsOfType(actionAnalyzerArcType);
 			for (IArc iArc : outgoingSecondActionArcs) {
 				if (iArc.getAttributeValue(ATTRIBUTE_NAME_TYPE).toString().equalsIgnoreCase(ATTRIBUTE_VALUE_PREDICATE_TO_PARA)) {
@@ -93,6 +70,9 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 					continue;
 				}
 			}
+			//TODO: incorrect if action is composed of multiple words
+			depNodeEnd = firstLeftAction;
+			end = (int) firstLeftAction.getAttributeValue(ATTRIBUTE_NAME_POSITION);
 			List<? extends IArc> outgoingFirstActionArcs = firstLeftAction.getOutgoingArcsOfType(actionAnalyzerArcType);
 			for (IArc iArc : outgoingFirstActionArcs) {
 				if (iArc.getAttributeValue(ATTRIBUTE_NAME_TYPE).toString().equalsIgnoreCase(ATTRIBUTE_VALUE_PREDICATE_TO_PARA)) {
@@ -131,6 +111,29 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 			result.addDependentPhrase(currNode);
 		} while (currNode != depNodeEnd);
 		return result;
+	}
+
+	private boolean findActionNodes(INode[] actions, boolean left) {
+		boolean foundAnd = false;
+		while ((left ? !actions[0].getIncomingArcsOfType(nextArcType).isEmpty() : !actions[0].getOutgoingArcsOfType(nextArcType).isEmpty())
+				&& actions[2] == null) {
+			actions[0] = (left ? actions[0].getIncomingArcsOfType(nextArcType).get(0)
+					: actions[0].getOutgoingArcsOfType(nextArcType).get(0)).getSourceNode();
+			if (actions[0].getAttributeValue(ATTRIBUTE_NAME_ROLE) != null
+					&& actions[0].getAttributeValue(ATTRIBUTE_NAME_ROLE).toString().equalsIgnoreCase(ATTRIBUTE_VALUE_PREDICATE)) {
+				if (actions[1] == null) {
+					actions[1] = actions[0];
+				} else {
+					actions[2] = actions[0];
+				}
+			}
+			if (actions[1] != null) {
+				if (actions[0].getAttributeValue(ATTRIBUTE_NAME_VALUE).toString().equalsIgnoreCase(WORD_AND)) {
+					foundAnd = true;
+				}
+			}
+		}
+		return foundAnd;
 	}
 
 }

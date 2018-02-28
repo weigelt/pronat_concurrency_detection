@@ -22,7 +22,7 @@ public class Utterance {
 
 	//TODO: create parsing for utteranceGraph
 	private void createUtterance() {
-		IArcType nextType = fullGraph.getArcType("next");
+		IArcType nextType = fullGraph.getArcType("relation");
 		utteranceAsGraph = new ParseGraph();
 		INode currNode = fullGraph.getFirstUtteranceNode();
 		IArc nextArc = null;

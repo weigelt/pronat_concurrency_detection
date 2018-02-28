@@ -1,7 +1,10 @@
 package edu.kit.ipd.parse.concurrency.filter;
 
+import java.util.List;
+
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
+import edu.kit.ipd.parse.luna.graph.IArc;
 import edu.kit.ipd.parse.luna.graph.IArcType;
 import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.graph.ParseGraph;
@@ -13,6 +16,7 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
 		IArcType nextArcType = new ParseGraph().createArcType("relation");
 		//		nextArcType.addAttributeToType("String", "value");
+		IArcType actionAnalyzerArcType = new ParseGraph().createArcType("relationInAction");
 
 		INode firstLeftAction = null;
 		INode secondLeftAction = null;
@@ -57,9 +61,52 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 			}
 		} while (!newRightNode.getOutgoingArcsOfType(nextArcType).isEmpty() && secondRightAction == null);
 
-		//if ()
+		INode depNodeBegin = null;
+		INode depNodeEnd = null;
+		int start = Integer.MAX_VALUE;
+		int end = Integer.MIN_VALUE;
 
-		return null;
+		if (firstRightAction != null && secondRightAction != null && rightAnd) {
+			//TODO
+		} else if (firstLeftAction != null && secondLeftAction != null && leftAnd) {
+			List<? extends IArc> outgoingSecondActionArcs = secondLeftAction.getOutgoingArcsOfType(actionAnalyzerArcType);
+			for (IArc iArc : outgoingSecondActionArcs) {
+				if (iArc.getAttributeValue("type").toString().equalsIgnoreCase(" PREDICATE_TO_PARA")) {
+					INode currTargetNode = iArc.getTargetNode();
+					if ((int) currTargetNode.getAttributeValue("position") < start) {
+						start = (int) currTargetNode.getAttributeValue("position");
+						depNodeBegin = currTargetNode;
+					}
+				} else {
+					continue;
+				}
+			}
+			List<? extends IArc> outgoingFirstActionArcs = firstLeftAction.getOutgoingArcsOfType(actionAnalyzerArcType);
+			for (IArc iArc : outgoingFirstActionArcs) {
+				if (iArc.getAttributeValue("type").toString().equalsIgnoreCase(" PREDICATE_TO_PARA")) {
+					INode currTargetNode = iArc.getTargetNode();
+					if ((int) currTargetNode.getAttributeValue("position") > end) {
+						end = (int) currTargetNode.getAttributeValue("position");
+						depNodeEnd = currTargetNode;
+					}
+				} else {
+					continue;
+				}
+			}
+		} else if (firstRightAction != null && secondRightAction != null) {
+			//TODO
+		} else {
+			//TODO
+		}
+		ConcurrentAction result = new ConcurrentAction();
+		result.setKeyphrase(keyphrase);
+		result.addDependentPhrase(depNodeBegin);
+		INode currNode = depNodeBegin;
+		do {
+			currNode = currNode.getOutgoingArcsOfType(nextArcType).get(0).getTargetNode();
+			result.addDependentPhrase(currNode);
+		} while (currNode == depNodeEnd);
+		return result;
 	}
 
 }

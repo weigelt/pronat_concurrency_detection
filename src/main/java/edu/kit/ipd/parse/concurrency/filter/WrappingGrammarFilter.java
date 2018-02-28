@@ -12,16 +12,16 @@ import edu.kit.ipd.parse.luna.graph.ParseGraph;
 public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
 	private ParseGraph pgStub;
-	private IArcType nextArcType;
-	private IArcType actionAnalyzerArcType;
+	static IArcType nextArcType;
+	static IArcType actionAnalyzerArcType;
 
 	private static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
 	private static final String ARC_TYPE_RELATION = "relation";
-	private static final String ATTRIBUTE_NAME_POSITION = "position";
+	static final String ATTRIBUTE_NAME_POSITION = "position";
 	private static final String ATTRIBUTE_NAME_VALUE = "value";
 	private static final String ATTRIBUTE_NAME_ROLE = "role";
-	private static final String ATTRIBUTE_NAME_TYPE = "type";
-	private static final String ATTRIBUTE_VALUE_PREDICATE_TO_PARA = "PREDICATE_TO_PARA";
+	static final String ATTRIBUTE_NAME_TYPE = "type";
+	static final String ATTRIBUTE_VALUE_PREDICATE_TO_PARA = "PREDICATE_TO_PARA";
 	private static final String ATTRIBUTE_VALUE_PREDICATE = "PREDICATE";
 	private static final String WORD_AND = "and";
 
@@ -77,7 +77,6 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 			for (IArc iArc : outgoingFirstActionArcs) {
 				if (iArc.getAttributeValue(ATTRIBUTE_NAME_TYPE).toString().equalsIgnoreCase(ATTRIBUTE_VALUE_PREDICATE_TO_PARA)) {
 					INode currTargetNode = iArc.getTargetNode();
-					//TODO: check if position is right of keyphrase.start
 					if ((int) currTargetNode.getAttributeValue(ATTRIBUTE_NAME_POSITION) >= (int) keyphrase.getAttachedNode().get(0)
 							.getAttributeValue(ATTRIBUTE_NAME_POSITION)) {
 						continue;

@@ -115,7 +115,7 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 		do {
 			currNode = currNode.getOutgoingArcsOfType(nextArcType).get(0).getTargetNode();
 			result.addDependentPhrase(currNode);
-		} while (currNode == depNodeEnd);
+		} while (currNode != depNodeEnd);
 		return result;
 	}
 

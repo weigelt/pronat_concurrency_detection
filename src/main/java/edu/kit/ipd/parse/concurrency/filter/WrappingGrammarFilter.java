@@ -39,7 +39,7 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 					secondLeftAction = newLeftNode;
 				}
 			}
-			if (newLeftNode != null) {
+			if (firstLeftAction != null) {
 				if (newLeftNode.getAttributeValue("value").toString().equalsIgnoreCase("and")) {
 					leftAnd = true;
 				}
@@ -56,7 +56,7 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 					secondRightAction = newRightNode;
 				}
 			}
-			if (newRightNode != null) {
+			if (firstRightAction != null) {
 				if (newRightNode.getAttributeValue("value").toString().equalsIgnoreCase("and")) {
 					rightAnd = true;
 				}

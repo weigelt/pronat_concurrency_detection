@@ -25,7 +25,7 @@ public class Keyphrase {
 	/**
 	 * @return the attachedNode
 	 */
-	public List<INode> getAttachedNode() {
+	public List<INode> getAttachedNodes() {
 		return attachedNodes;
 	}
 

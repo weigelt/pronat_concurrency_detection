@@ -8,6 +8,7 @@ import edu.kit.ipd.parse.concurrency.data.Utterance;
 import edu.kit.ipd.parse.concurrency.filter.GrammarFilter;
 import edu.kit.ipd.parse.concurrency.filter.KeyphraseFilter;
 import edu.kit.ipd.parse.luna.agent.AbstractAgent;
+import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.ParseGraph;
 
 public class ConcurrencyAgent extends AbstractAgent {
@@ -32,12 +33,18 @@ public class ConcurrencyAgent extends AbstractAgent {
 		ParseGraph graphAsParseGraph = (ParseGraph) graph;
 		utterance = new Utterance(graphAsParseGraph);
 		List<Keyphrase> keywords = kf.filter(utterance.giveUtteranceAsNodeList());
-		conActions = gf.filter(keywords);
+		try {
+			conActions = gf.filter(keywords);
+		} catch (MissingDataException e) {
+			//TODO Logger and return!
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Only for testing
-	 * 
+	 *
 	 * @return
 	 */
 	public List<ConcurrentAction> getConcurrentActions() {

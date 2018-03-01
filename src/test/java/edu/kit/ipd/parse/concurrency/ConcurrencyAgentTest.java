@@ -73,6 +73,40 @@ public class ConcurrencyAgentTest {
 
 	}
 
+	@Ignore("not implemented yet")
+	@Test
+	public void openingTest() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "the dog jumps" +
+				"at the same time the horse sleeps";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "at", "the", "same", "time" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpanBefore = new int[] { 0, 2 };
+		int[] expectedSpanAfter = new int[] { 7, 9 };
+		for (INode node : action.getDependentPhrases()) {
+			int nodePosition = (int) node.getAttributeValue("position");
+			boolean isInsideSpan = expectedSpanBefore[0] <= nodePosition && nodePosition <= expectedSpanBefore[1];
+			isInsideSpan = isInsideSpan || expectedSpanAfter[0] <= nodePosition && nodePosition <= expectedSpanAfter[1];
+			Assert.assertTrue("Dependent Node at position " + nodePosition + " is not inside expected spans: " + expectedSpanBefore + ", "
+					+ expectedSpanAfter, isInsideSpan);
+		}
+
+	}
+
 	@Test
 	public void wrappingTestRight() {
 		ppd = new PrePipelineData();

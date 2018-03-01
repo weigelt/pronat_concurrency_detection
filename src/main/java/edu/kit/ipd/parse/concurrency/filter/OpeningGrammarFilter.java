@@ -20,11 +20,10 @@ public class OpeningGrammarFilter implements ISpecializedGrammarFilter {
 		INode firstLeftAction = leftActions[1];
 		INode firstRightAction = rightActions[1];
 
-		ConcurrentAction result = null;
 		if (firstLeftAction != null && firstRightAction != null) {
 			return OpeningDependentNodesExtractor.extract(keyphrase, firstLeftAction, firstRightAction);
 		}
-		return result;
+		return null;
 	}
 
 }

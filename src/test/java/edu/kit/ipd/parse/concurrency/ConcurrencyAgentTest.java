@@ -47,10 +47,10 @@ public class ConcurrencyAgentTest {
 	}
 
 	@Test
-	public void wrappingTest() {
+	public void wrappingTestLeft() {
 		ppd = new PrePipelineData();
 		//@formatter:off
-		String input = "the dog jumps and the horse looks at once ";
+		String input = "the dog jumps and the horse looks at once";
 		//@formatter:on
 		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
 
@@ -62,11 +62,38 @@ public class ConcurrencyAgentTest {
 		ConcurrentAction action = actions.get(0);
 		String[] expected = new String[] { "at", "once" };
 		int i = 0;
-		for (INode node : action.getKeyphrase().getAttachedNode()) {
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
 			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
 			i++;
 		}
 		int[] expectedSpan = new int[] { 0, 6 };
+		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
+		Assert.assertEquals(expectedSpan[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
+	@Test
+	public void wrappingTestRight() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "at once the dog jumps and the horse looks to the right";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "at", "once" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpan = new int[] { 2, 11 };
 		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
 		Assert.assertEquals(expectedSpan[1],
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));

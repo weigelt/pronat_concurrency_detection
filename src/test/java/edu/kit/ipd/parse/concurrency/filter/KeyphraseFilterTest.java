@@ -37,7 +37,7 @@ public class KeyphraseFilterTest {
 		List<Keyphrase> result = new KeyphraseFilter().filter(inputNodeList);
 		for (Keyphrase keyphrase : result) {
 			int i = 0;
-			for (INode node : keyphrase.getAttachedNode()) {
+			for (INode node : keyphrase.getAttachedNodes()) {
 				Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
 				i++;
 			}
@@ -58,7 +58,7 @@ public class KeyphraseFilterTest {
 		List<Keyphrase> result = new KeyphraseFilter().filter(inputNodeList);
 		for (Keyphrase keyphrase : result) {
 			int i = 0;
-			for (INode node : keyphrase.getAttachedNode()) {
+			for (INode node : keyphrase.getAttachedNodes()) {
 				Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
 				i++;
 			}
@@ -79,7 +79,7 @@ public class KeyphraseFilterTest {
 		List<Keyphrase> result = new KeyphraseFilter().filter(inputNodeList);
 		for (Keyphrase keyphrase : result) {
 			int i = 0;
-			for (INode node : keyphrase.getAttachedNode()) {
+			for (INode node : keyphrase.getAttachedNodes()) {
 				Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
 				i++;
 			}
@@ -100,7 +100,7 @@ public class KeyphraseFilterTest {
 		List<Keyphrase> result = new KeyphraseFilter().filter(inputNodeList);
 		for (Keyphrase keyphrase : result) {
 			int i = 0;
-			for (INode node : keyphrase.getAttachedNode()) {
+			for (INode node : keyphrase.getAttachedNodes()) {
 				Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
 				i++;
 			}

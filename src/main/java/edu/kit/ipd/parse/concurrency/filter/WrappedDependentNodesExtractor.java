@@ -8,23 +8,16 @@ import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.IArc;
 import edu.kit.ipd.parse.luna.graph.INode;
 
-public abstract class WrappedDependentNodesExtractor {
+public class WrappedDependentNodesExtractor {
 
 	private int start, end;
 	private ConcurrentAction ca;
 
-	/**
-	 * @return the concurrent action
-	 */
-	public ConcurrentAction getConcurrentAction() {
-		return ca;
-	}
-
 	// template methode
 	void extract(Keyphrase keyphrase, INode startingAction, INode endingAction, boolean left) throws MissingDataException {
 
-		INode begin = determineBegin(endingAction, keyphrase, left);
-		INode end = determineEnd(keyphrase, startingAction, left);
+		INode begin = determineBegin(startingAction, keyphrase, left);
+		INode end = determineEnd(keyphrase, endingAction, left);
 		ca = constructSequence(keyphrase, begin, end);
 	}
 
@@ -94,4 +87,10 @@ public abstract class WrappedDependentNodesExtractor {
 		return result;
 	}
 
+	/**
+	 * @return the concurrent action
+	 */
+	public ConcurrentAction getConcurrentAction() {
+		return ca;
+	}
 }

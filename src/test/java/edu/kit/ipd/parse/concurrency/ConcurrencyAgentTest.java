@@ -1,5 +1,6 @@
 package edu.kit.ipd.parse.concurrency;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -73,13 +74,11 @@ public class ConcurrencyAgentTest {
 
 	}
 
-	@Ignore("not implemented yet")
 	@Test
 	public void openingTest() {
 		ppd = new PrePipelineData();
 		//@formatter:off
-		String input = "the dog jumps" +
-				"at the same time the horse sleeps";
+		String input = "the roboter grabs a cup in the meantime the roboter goes to the fridge";
 		//@formatter:on
 		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
 
@@ -89,20 +88,20 @@ public class ConcurrencyAgentTest {
 		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
 		Assert.assertEquals(1, actions.size());
 		ConcurrentAction action = actions.get(0);
-		String[] expected = new String[] { "at", "the", "same", "time" };
+		String[] expected = new String[] { "in", "the", "meantime" };
 		int i = 0;
 		for (INode node : action.getKeyphrase().getAttachedNodes()) {
 			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
 			i++;
 		}
-		int[] expectedSpanBefore = new int[] { 0, 2 };
-		int[] expectedSpanAfter = new int[] { 7, 9 };
+		int[] expectedSpanBefore = new int[] { 0, 4 };
+		int[] expectedSpanAfter = new int[] { 8, 13 };
 		for (INode node : action.getDependentPhrases()) {
 			int nodePosition = (int) node.getAttributeValue("position");
 			boolean isInsideSpan = expectedSpanBefore[0] <= nodePosition && nodePosition <= expectedSpanBefore[1];
 			isInsideSpan = isInsideSpan || expectedSpanAfter[0] <= nodePosition && nodePosition <= expectedSpanAfter[1];
-			Assert.assertTrue("Dependent Node at position " + nodePosition + " is not inside expected spans: " + expectedSpanBefore + ", "
-					+ expectedSpanAfter, isInsideSpan);
+			Assert.assertTrue("Dependent Node at position " + nodePosition + " is not inside expected spans: "
+					+ Arrays.toString(expectedSpanBefore) + ", " + Arrays.toString(expectedSpanAfter), isInsideSpan);
 		}
 
 	}

@@ -120,6 +120,52 @@ public class ConcurrencyAgentTest {
 
 	}
 
+	@Ignore("not working yet")
+	@Test
+	public void openingTestImperative() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "Armar go to the fridge in the meantime look at the recipe";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "in", "the", "meantime" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpanBefore = new int[] { 0, 4 };
+		int[] expectedSpanAfter = new int[] { 8, 11 };
+		int lastBefore = 0;
+		int index = 0;
+		Assert.assertEquals("Before span does not start where expected", expectedSpanBefore[0],
+				action.getDependentPhrases().get(0).getAttributeValue("position"));
+		for (INode node : action.getDependentPhrases()) {
+			int nodePosition = (int) node.getAttributeValue("position");
+			boolean isInsideSpan = expectedSpanBefore[0] <= nodePosition && nodePosition <= expectedSpanBefore[1];
+			if (lastBefore == 0 && isInsideSpan == false) {
+				Assert.assertEquals("Before span does not end where expected", expectedSpanBefore[1],
+						action.getDependentPhrases().get(index).getAttributeValue("position"));
+				lastBefore = index;
+				Assert.assertEquals("After span does start not where expected", expectedSpanAfter[0], nodePosition);
+			}
+			isInsideSpan = isInsideSpan || expectedSpanAfter[0] <= nodePosition && nodePosition <= expectedSpanAfter[1];
+			Assert.assertTrue("Dependent Node at position " + nodePosition + " is not inside expected spans: "
+					+ Arrays.toString(expectedSpanBefore) + ", " + Arrays.toString(expectedSpanAfter), isInsideSpan);
+			index++;
+		}
+		Assert.assertEquals("After span does not end where expected", expectedSpanAfter[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
 	@Test
 	public void wrappingTestRight() {
 		ppd = new PrePipelineData();

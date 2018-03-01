@@ -7,10 +7,7 @@ import edu.kit.ipd.parse.luna.graph.INode;
 
 public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
-	private WrappedDependentNodesExtractor wdne;
-
 	public WrappingGrammarFilter() {
-		this.wdne = new WrappedDependentNodesExtractor();
 	}
 
 	@Override
@@ -31,11 +28,11 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
 		ConcurrentAction result = null;
 		if (firstRightAction != null && secondRightAction != null && rightAnd) {
-			result = this.wdne.extract(keyphrase, firstRightAction, secondRightAction, false);
+			result = WrappedDependentNodesExtractor.extract(keyphrase, firstRightAction, secondRightAction, false);
 		} else if (firstLeftAction != null && secondLeftAction != null && leftAnd) {
-			result = this.wdne.extract(keyphrase, secondLeftAction, firstLeftAction, true);
+			result = WrappedDependentNodesExtractor.extract(keyphrase, secondLeftAction, firstLeftAction, true);
 		} else if (firstRightAction != null && secondRightAction != null) {
-			result = this.wdne.extract(keyphrase, firstRightAction, secondRightAction, false);
+			result = WrappedDependentNodesExtractor.extract(keyphrase, firstRightAction, secondRightAction, false);
 		} else {
 			//TODO: what now?
 		}

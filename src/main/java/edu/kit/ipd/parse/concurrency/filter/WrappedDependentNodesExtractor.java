@@ -11,14 +11,15 @@ import edu.kit.ipd.parse.luna.graph.INode;
 public class WrappedDependentNodesExtractor {
 
 	// template methode
-	ConcurrentAction extract(Keyphrase keyphrase, INode startingAction, INode endingAction, boolean left) throws MissingDataException {
+	static ConcurrentAction extract(Keyphrase keyphrase, INode startingAction, INode endingAction, boolean left)
+			throws MissingDataException {
 
 		INode begin = determineBegin(startingAction, keyphrase, left);
 		INode end = determineEnd(keyphrase, endingAction, left);
 		return constructConcurrentAction(keyphrase, begin, end);
 	}
 
-	private INode determineBegin(INode startingAction, Keyphrase keyphrase, boolean left) throws MissingDataException {
+	private static INode determineBegin(INode startingAction, Keyphrase keyphrase, boolean left) throws MissingDataException {
 		INode depNodeBegin = startingAction;
 		int start = GrammarFilter.getPositionOfNode(depNodeBegin);
 		List<? extends IArc> outgoingFirstActionArcs = startingAction.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType);
@@ -41,7 +42,7 @@ public class WrappedDependentNodesExtractor {
 		return depNodeBegin;
 	}
 
-	private INode determineEnd(Keyphrase keyphrase, INode endingAction, boolean left) {
+	private static INode determineEnd(Keyphrase keyphrase, INode endingAction, boolean left) {
 		INode depNodeEnd = endingAction;
 		int end = (int) endingAction.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_POSITION);
 		List<? extends IArc> outgoingFirstActionArcs = endingAction.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType);
@@ -72,7 +73,7 @@ public class WrappedDependentNodesExtractor {
 		return depNodeEnd;
 	}
 
-	private ConcurrentAction constructConcurrentAction(Keyphrase keyphrase, INode start, INode end) {
+	private static ConcurrentAction constructConcurrentAction(Keyphrase keyphrase, INode start, INode end) {
 		ConcurrentAction result = new ConcurrentAction();
 		result.setKeyphrase(keyphrase);
 		result.addDependentPhrase(start);

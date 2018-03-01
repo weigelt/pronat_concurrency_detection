@@ -7,14 +7,14 @@ import edu.kit.ipd.parse.luna.graph.INode;
 
 public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
-	public WrappingGrammarFilter() {
+	private WrappedDependentNodesExtractor wdne;
 
+	public WrappingGrammarFilter() {
+		this.wdne = new WrappedDependentNodesExtractor();
 	}
 
 	@Override
 	public ConcurrentAction filter(Keyphrase keyphrase) throws MissingDataException {
-
-		WrappedDependentNodesExtractor wdne = new WrappedDependentNodesExtractor();
 
 		INode[] leftActions = new INode[3];
 		leftActions[0] = keyphrase.getAttachedNodes().get(0);
@@ -29,16 +29,17 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 		INode firstRightAction = rightActions[1];
 		INode secondRightAction = rightActions[2];
 
+		ConcurrentAction result = null;
 		if (firstRightAction != null && secondRightAction != null && rightAnd) {
-			wdne.extract(keyphrase, firstRightAction, secondRightAction, false);
+			result = this.wdne.extract(keyphrase, firstRightAction, secondRightAction, false);
 		} else if (firstLeftAction != null && secondLeftAction != null && leftAnd) {
-			wdne.extract(keyphrase, secondLeftAction, firstLeftAction, true);
+			result = this.wdne.extract(keyphrase, secondLeftAction, firstLeftAction, true);
 		} else if (firstRightAction != null && secondRightAction != null) {
-			wdne.extract(keyphrase, firstRightAction, secondRightAction, false);
+			result = this.wdne.extract(keyphrase, firstRightAction, secondRightAction, false);
 		} else {
 			//TODO: what now?
 		}
-		return wdne.getConcurrentAction();
+		return result;
 	}
 
 	private boolean findActionNodes(INode[] actions, boolean left) {

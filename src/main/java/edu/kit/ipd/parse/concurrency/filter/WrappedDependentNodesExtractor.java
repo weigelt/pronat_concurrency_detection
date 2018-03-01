@@ -10,20 +10,17 @@ import edu.kit.ipd.parse.luna.graph.INode;
 
 public class WrappedDependentNodesExtractor {
 
-	private int start, end;
-	private ConcurrentAction ca;
-
 	// template methode
-	void extract(Keyphrase keyphrase, INode startingAction, INode endingAction, boolean left) throws MissingDataException {
+	ConcurrentAction extract(Keyphrase keyphrase, INode startingAction, INode endingAction, boolean left) throws MissingDataException {
 
 		INode begin = determineBegin(startingAction, keyphrase, left);
 		INode end = determineEnd(keyphrase, endingAction, left);
-		ca = constructSequence(keyphrase, begin, end);
+		return constructConcurrentAction(keyphrase, begin, end);
 	}
 
 	private INode determineBegin(INode startingAction, Keyphrase keyphrase, boolean left) throws MissingDataException {
 		INode depNodeBegin = startingAction;
-		start = GrammarFilter.getPositionOfNode(depNodeBegin);
+		int start = GrammarFilter.getPositionOfNode(depNodeBegin);
 		List<? extends IArc> outgoingFirstActionArcs = startingAction.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType);
 		for (IArc iArc : outgoingFirstActionArcs) {
 			if (iArc.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_TYPE).toString()
@@ -46,7 +43,7 @@ public class WrappedDependentNodesExtractor {
 
 	private INode determineEnd(Keyphrase keyphrase, INode endingAction, boolean left) {
 		INode depNodeEnd = endingAction;
-		end = (int) endingAction.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_POSITION);
+		int end = (int) endingAction.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_POSITION);
 		List<? extends IArc> outgoingFirstActionArcs = endingAction.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType);
 		for (IArc iArc : outgoingFirstActionArcs) {
 			if (iArc.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_TYPE).toString()
@@ -75,7 +72,7 @@ public class WrappedDependentNodesExtractor {
 		return depNodeEnd;
 	}
 
-	private ConcurrentAction constructSequence(Keyphrase keyphrase, INode start, INode end) {
+	private ConcurrentAction constructConcurrentAction(Keyphrase keyphrase, INode start, INode end) {
 		ConcurrentAction result = new ConcurrentAction();
 		result.setKeyphrase(keyphrase);
 		result.addDependentPhrase(start);
@@ -85,12 +82,5 @@ public class WrappedDependentNodesExtractor {
 			result.addDependentPhrase(currNode);
 		} while (currNode != end);
 		return result;
-	}
-
-	/**
-	 * @return the concurrent action
-	 */
-	public ConcurrentAction getConcurrentAction() {
-		return ca;
 	}
 }

@@ -56,4 +56,12 @@ public class Keyphrase {
 		return out;
 	}
 
+	public String getKeyphraseAsString() {
+		String result = "";
+		for (INode iNode : attachedNodes) {
+			result += iNode.getAttributeValue("value") + " ";
+		}
+		return result.trim();
+	}
+
 }

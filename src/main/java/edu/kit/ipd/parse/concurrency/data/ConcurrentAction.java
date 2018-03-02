@@ -8,6 +8,7 @@ import edu.kit.ipd.parse.luna.graph.INode;
 public class ConcurrentAction {
 	private Keyphrase keyphrase;
 	private List<INode> dependentPhrases;
+	private List<INode> dependentActions;
 
 	public ConcurrentAction() {
 		this.dependentPhrases = new ArrayList<>();
@@ -49,6 +50,29 @@ public class ConcurrentAction {
 	 */
 	public void addDependentPhrase(INode dependentPhrase) {
 		dependentPhrases.add(dependentPhrase);
+	}
+
+	/**
+	 * @return the dependentActions
+	 */
+	public List<INode> getDependentActions() {
+		return dependentActions;
+	}
+
+	/**
+	 * @param dependentActions
+	 *            the dependentActions to set
+	 */
+	public void setDependentActions(List<INode> dependentActions) {
+		this.dependentActions = dependentActions;
+	}
+
+	/**
+	 * @param dependentAction
+	 *            adds a dependent action to the list of dep. phrases
+	 */
+	public void addDependentAction(INode dependentAction) {
+		dependentActions.add(dependentAction);
 	}
 
 	@Override

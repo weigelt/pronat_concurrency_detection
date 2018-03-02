@@ -19,6 +19,7 @@ import edu.kit.ipd.parse.luna.graph.INodeType;
 import edu.kit.ipd.parse.luna.graph.ParseGraph;
 import edu.kit.ipd.parse.luna.pipeline.PipelineStageException;
 import edu.kit.ipd.parse.luna.tools.StringToHypothesis;
+import edu.kit.ipd.parse.ner.NERTagger;
 import edu.kit.ipd.parse.shallownlp.ShallowNLP;
 import edu.kit.ipd.parse.srlabeler.SRLabeler;
 
@@ -28,6 +29,7 @@ public class ConcurrencyAgentTest {
 	private static GraphBuilder graphBuilder;
 	private static ActionRecogMock actionRecog;
 	private static SRLabeler srLabeler;
+	private static NERTagger ner;
 	private static ConcurrencyAgent concAgent;
 	private PrePipelineData ppd;
 	static ParseGraph pg;
@@ -41,6 +43,8 @@ public class ConcurrencyAgentTest {
 		srLabeler.init();
 		snlp = new ShallowNLP();
 		snlp.init();
+		ner = new NERTagger();
+		ner.init();
 		actionRecog = new ActionRecogMock();
 		actionRecog.init();
 		concAgent = new ConcurrencyAgent();
@@ -106,8 +110,8 @@ public class ConcurrencyAgentTest {
 			boolean isInsideSpan = expectedSpanBefore[0] <= nodePosition && nodePosition <= expectedSpanBefore[1];
 			if (lastBefore == 0 && isInsideSpan == false) {
 				Assert.assertEquals("Before span does not end where expected", expectedSpanBefore[1],
-						action.getDependentPhrases().get(index).getAttributeValue("position"));
-				lastBefore = index;
+						action.getDependentPhrases().get(index - 1).getAttributeValue("position"));
+				lastBefore = index - 1;
 				Assert.assertEquals("After span does start not where expected", expectedSpanAfter[0], nodePosition);
 			}
 			isInsideSpan = isInsideSpan || expectedSpanAfter[0] <= nodePosition && nodePosition <= expectedSpanAfter[1];
@@ -120,7 +124,6 @@ public class ConcurrencyAgentTest {
 
 	}
 
-	@Ignore("not working yet")
 	@Test
 	public void openingTestImperative() {
 		ppd = new PrePipelineData();
@@ -152,8 +155,8 @@ public class ConcurrencyAgentTest {
 			boolean isInsideSpan = expectedSpanBefore[0] <= nodePosition && nodePosition <= expectedSpanBefore[1];
 			if (lastBefore == 0 && isInsideSpan == false) {
 				Assert.assertEquals("Before span does not end where expected", expectedSpanBefore[1],
-						action.getDependentPhrases().get(index).getAttributeValue("position"));
-				lastBefore = index;
+						action.getDependentPhrases().get(index - 1).getAttributeValue("position"));
+				lastBefore = index - 1;
 				Assert.assertEquals("After span does start not where expected", expectedSpanAfter[0], nodePosition);
 			}
 			isInsideSpan = isInsideSpan || expectedSpanAfter[0] <= nodePosition && nodePosition <= expectedSpanAfter[1];
@@ -252,6 +255,7 @@ public class ConcurrencyAgentTest {
 		try {
 			snlp.exec(ppd);
 			srLabeler.exec(ppd);
+			ner.exec(ppd);
 			graphBuilder.exec(ppd);
 		} catch (PipelineStageException e) {
 			e.printStackTrace();

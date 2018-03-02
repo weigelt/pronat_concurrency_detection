@@ -12,6 +12,7 @@ public class ConcurrentAction {
 
 	public ConcurrentAction() {
 		this.dependentPhrases = new ArrayList<>();
+		this.dependentActions = new ArrayList<>();
 	}
 
 	/**

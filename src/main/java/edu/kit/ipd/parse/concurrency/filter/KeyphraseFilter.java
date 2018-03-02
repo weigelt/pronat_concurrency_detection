@@ -16,6 +16,7 @@ public class KeyphraseFilter {
 	private static Set<List<String>> wrappingKeyphrases = new HashSet<List<String>>();
 	private static Set<List<String>> separatingKeyphrases = new HashSet<List<String>>();
 	private static Set<List<String>> openingKeyphrases = new HashSet<List<String>>();
+	private static Set<List<String>> endingKeyphrases = new HashSet<List<String>>();
 
 	public KeyphraseFilter() {
 		//TODO: implement as config extractor
@@ -24,19 +25,22 @@ public class KeyphraseFilter {
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "once")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("simultaneously")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("coevally")));
-		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("coincidentally")));
-		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("concurrent")));
+		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("concurrently")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("synchronistically")));
 
+		//		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("and", "at", "the", "same", "time")));
 		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "the", "same", "time")));
 		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("while")));
-		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("additionally")));
+		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("meanwhile")));
+		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("in", "the", "meantime")));
+		//		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("and", "in", "the", "meantime")));
 
-		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "the", "same", "time")));
-		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("additionally")));
-		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("meanwhile")));
-		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("in", "the", "meantime")));
 		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("during")));
+		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("and", "while")));
+		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("while")));
+
+		endingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "the", "same", "time")));
+		endingKeyphrases.add(new ArrayList<String>(Arrays.asList("in", "the", "meantime")));
 	}
 
 	public List<Keyphrase> filter(List<INode> utteranceAsNodeList) {

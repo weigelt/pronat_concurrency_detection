@@ -1,22 +1,24 @@
 package edu.kit.ipd.parse.concurrency.filter;
 
+import org.apache.commons.lang3.mutable.MutableBoolean;
+
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.INode;
 
-public class SeparatingGrammarFilter implements ISpecializedGrammarFilter {
+public class SeparatingGrammarFilter extends AbstractSpecializedGrammarFilter {
 
 	@Override
-	public ConcurrentAction filter(Keyphrase keyphrase) throws MissingDataException {
-		INode[] leftActions = new INode[3];
-		leftActions[0] = keyphrase.getAttachedNodes().get(0);
-		INode[] rightActions = new INode[3];
-		rightActions[0] = keyphrase.getAttachedNodes().get(keyphrase.getAttachedNodes().size() - 1);
+	protected void detectActions(INode[] leftActions, INode[] rightActions, MutableBoolean leftAnd, MutableBoolean rightAnd,
+			Keyphrase keyphrase) {
+		findLeftActions(leftActions, keyphrase);
+		findRightActions(rightActions, keyphrase);
+	}
 
-		GrammarFilter.findActionNodes(leftActions, true);
-		GrammarFilter.findActionNodes(rightActions, false);
-
+	@Override
+	protected ConcurrentAction interpretResults(INode[] leftActions, INode[] rightActions, MutableBoolean leftAnd, MutableBoolean rightAnd,
+			Keyphrase keyphrase) throws MissingDataException {
 		INode firstLeftAction = leftActions[1];
 		INode firstRightAction = rightActions[1];
 

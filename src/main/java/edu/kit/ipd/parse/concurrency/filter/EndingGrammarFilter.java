@@ -1,25 +1,30 @@
 package edu.kit.ipd.parse.concurrency.filter;
 
+import org.apache.commons.lang3.mutable.MutableBoolean;
+
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.INode;
 
-public class EndingGrammarFilter implements ISpecializedGrammarFilter {
+public class EndingGrammarFilter extends AbstractSpecializedGrammarFilter {
 
 	@Override
-	public ConcurrentAction filter(Keyphrase keyphrase) throws MissingDataException {
-		INode[] leftActions = new INode[3];
-		leftActions[0] = keyphrase.getAttachedNodes().get(0);
+	protected void detectActions(INode[] leftActions, INode[] rightActions, MutableBoolean leftAnd, MutableBoolean rightAnd,
+			Keyphrase keyphrase) {
+		leftAnd.setValue(findLeftActions(leftActions, keyphrase));
 
-		boolean leftAnd = GrammarFilter.findActionNodes(leftActions, true);
+	}
 
+	@Override
+	protected ConcurrentAction interpretResults(INode[] leftActions, INode[] rightActions, MutableBoolean leftAnd, MutableBoolean rightAnd,
+			Keyphrase keyphrase) throws MissingDataException {
 		INode firstLeftAction = leftActions[1];
 		INode secondLeftAction = leftActions[2];
 
 		ConcurrentAction result = null;
-		if (firstLeftAction != null && secondLeftAction != null && leftAnd) {
-			result = DependentNodesExtractor.extract(keyphrase, secondLeftAction, firstLeftAction, true);
+		if (firstLeftAction != null && secondLeftAction != null && leftAnd.getValue()) {
+			result = leftAndCase(firstLeftAction, secondLeftAction, keyphrase);
 		} else {
 			//TODO: what now?
 		}

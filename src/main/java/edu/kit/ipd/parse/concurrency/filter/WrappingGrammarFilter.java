@@ -1,35 +1,37 @@
 package edu.kit.ipd.parse.concurrency.filter;
 
+import org.apache.commons.lang3.mutable.MutableBoolean;
+
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.INode;
 
-public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
+public class WrappingGrammarFilter extends AbstractSpecializedGrammarFilter {
 
 	@Override
-	public ConcurrentAction filter(Keyphrase keyphrase) throws MissingDataException {
+	protected void detectActions(INode[] leftActions, INode[] rightActions, MutableBoolean leftAnd, MutableBoolean rightAnd,
+			Keyphrase keyphrase) {
+		leftAnd.setValue(findLeftActions(leftActions, keyphrase));
+		rightAnd.setValue(findRightActions(rightActions, keyphrase));
 
-		INode[] leftActions = new INode[3];
-		leftActions[0] = keyphrase.getAttachedNodes().get(0);
-		INode[] rightActions = new INode[3];
-		rightActions[0] = keyphrase.getAttachedNodes().get(keyphrase.getAttachedNodes().size() - 1);
+	}
 
-		boolean leftAnd = GrammarFilter.findActionNodes(leftActions, true);
-		boolean rightAnd = GrammarFilter.findActionNodes(rightActions, false);
-
+	@Override
+	protected ConcurrentAction interpretResults(INode[] leftActions, INode[] rightActions, MutableBoolean leftAnd, MutableBoolean rightAnd,
+			Keyphrase keyphrase) throws MissingDataException {
 		INode firstLeftAction = leftActions[1];
 		INode secondLeftAction = leftActions[2];
 		INode firstRightAction = rightActions[1];
 		INode secondRightAction = rightActions[2];
 
 		ConcurrentAction result = null;
-		if (firstRightAction != null && secondRightAction != null && rightAnd) {
-			result = DependentNodesExtractor.extract(keyphrase, firstRightAction, secondRightAction, false);
-		} else if (firstLeftAction != null && secondLeftAction != null && leftAnd) {
-			result = DependentNodesExtractor.extract(keyphrase, secondLeftAction, firstLeftAction, true);
+		if (firstRightAction != null && secondRightAction != null && rightAnd.getValue()) {
+			result = rightAndCase(firstRightAction, secondRightAction, keyphrase);
+		} else if (firstLeftAction != null && secondLeftAction != null && leftAnd.getValue()) {
+			result = leftAndCase(firstLeftAction, secondLeftAction, keyphrase);
 		} else if (firstRightAction != null && secondRightAction != null) {
-			result = DependentNodesExtractor.extract(keyphrase, firstRightAction, secondRightAction, false);
+			result = rightWithoutAndCase(firstRightAction, secondRightAction, keyphrase);
 		} else {
 			//TODO: what now?
 		}

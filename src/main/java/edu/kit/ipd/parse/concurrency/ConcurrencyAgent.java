@@ -16,6 +16,9 @@ import edu.kit.ipd.parse.luna.graph.ParseGraph;
 @MetaInfServices(AbstractAgent.class)
 public class ConcurrencyAgent extends AbstractAgent {
 
+	static final String ARC_TYPE_RELATION = "relation";
+	static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
+
 	KeyphraseFilter kf;
 	GrammarFilter gf;
 	Utterance utterance;
@@ -30,9 +33,9 @@ public class ConcurrencyAgent extends AbstractAgent {
 	@Override
 	protected void exec() {
 
-		checkMandatoryPreconditions();
-		checkOptionalPreconditionds();
-
+		if (!checkMandatoryPreconditions()) {
+			return;
+		}
 		ParseGraph graphAsParseGraph = (ParseGraph) graph;
 		utterance = new Utterance(graphAsParseGraph);
 		List<Keyphrase> keywords = kf.filter(utterance.giveUtteranceAsNodeList());
@@ -43,6 +46,8 @@ public class ConcurrencyAgent extends AbstractAgent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		//TODO: add optional filter for coref or eventcoref?
 	}
 
 	/**
@@ -54,14 +59,11 @@ public class ConcurrencyAgent extends AbstractAgent {
 		return conActions;
 	}
 
-	private void checkOptionalPreconditionds() {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void checkMandatoryPreconditions() {
-		// TODO Auto-generated method stub
-
+	private boolean checkMandatoryPreconditions() {
+		if (graph.hasArcType("relation") && graph.hasArcType("relationInAction")) {
+			return true;
+		}
+		return false;
 	}
 
 }

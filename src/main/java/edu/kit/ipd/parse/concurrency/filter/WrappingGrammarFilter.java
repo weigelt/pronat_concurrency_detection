@@ -28,11 +28,11 @@ public class WrappingGrammarFilter implements ISpecializedGrammarFilter {
 
 		ConcurrentAction result = null;
 		if (firstRightAction != null && secondRightAction != null && rightAnd) {
-			result = WrappedDependentNodesExtractor.extract(keyphrase, firstRightAction, secondRightAction, false);
+			result = DependentNodesExtractor.extract(keyphrase, firstRightAction, secondRightAction, false);
 		} else if (firstLeftAction != null && secondLeftAction != null && leftAnd) {
-			result = WrappedDependentNodesExtractor.extract(keyphrase, secondLeftAction, firstLeftAction, true);
+			result = DependentNodesExtractor.extract(keyphrase, secondLeftAction, firstLeftAction, true);
 		} else if (firstRightAction != null && secondRightAction != null) {
-			result = WrappedDependentNodesExtractor.extract(keyphrase, firstRightAction, secondRightAction, false);
+			result = DependentNodesExtractor.extract(keyphrase, firstRightAction, secondRightAction, false);
 		} else {
 			//TODO: what now?
 		}

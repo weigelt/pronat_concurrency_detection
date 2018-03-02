@@ -5,7 +5,7 @@ import edu.kit.ipd.parse.concurrency.data.Keyphrase;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.INode;
 
-public class OpeningDependentNodesExtractor extends AbstractDependentNodesExtractor {
+public class SeparatingDependentNodesExtractor extends AbstractDependentNodesExtractor {
 
 	// template method
 	static ConcurrentAction extract(Keyphrase keyphrase, INode previousAction, INode followingAction) throws MissingDataException {

@@ -6,6 +6,7 @@ import org.kohsuke.MetaInfServices;
 
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
+import edu.kit.ipd.parse.concurrency.data.KeyphraseType;
 import edu.kit.ipd.parse.concurrency.data.Utterance;
 import edu.kit.ipd.parse.concurrency.filter.GrammarFilter;
 import edu.kit.ipd.parse.concurrency.filter.KeyphraseFilter;
@@ -62,7 +63,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 			e.printStackTrace();
 		}
 		//TODO: add optional filter for coref or eventcoref?
-		writeToGraph(conActions);
+		//writeToGraph(conActions);
 	}
 
 	/**
@@ -90,13 +91,20 @@ public class ConcurrencyAgent extends AbstractAgent {
 				if (i == 0) {
 					if (!currKPNode.getIncomingArcsOfType(keyPhraseType).isEmpty() && currKPNode.getIncomingArcsOfType(keyPhraseType).get(0)
 							.getSourceNode().getType().equals(concurrentActionType)) {
-						//we already have a conc action node and this is also the source
+						//we already have a concurrent action node and this is also the source
+						//TODO: what if the source node is not the concurrent action node but a token node instead?
 						currConActNode = currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode();
 					} else {
-
+						//we don't have a concurrent action node. Thus, we create one!
+						currConActNode = graph.createNode(concurrentActionType);
+						currConActNode.setAttributeValue("keyphrase", currKPtoWrite.getKeyphraseAsString());
+						String type = currKPtoWrite.getSecondaryType().equals(KeyphraseType.UNSET) ? currKPtoWrite.getPrimaryType().name()
+								: currKPtoWrite.getPrimaryType() + "/" + currKPtoWrite.getSecondaryType().name();
+						currConActNode.setAttributeValue("type", type);
+						currConActNode.setAttributeValue("dependentPhrases", concurrentAction.getDependentPhrasesAsString());
 					}
 				}
-
+				//go on from here
 			}
 		}
 

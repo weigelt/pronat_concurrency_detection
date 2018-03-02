@@ -35,7 +35,12 @@ public class Keyphrase {
 
 	@Override
 	public String toString() {
-		return attachedNodes.toString();
+		String out = "[" + type.name() + ": ";
+		for (INode iNode : attachedNodes) {
+			out += iNode.getAttributeValue("value") + "(" + iNode.getAttributeValue("position") + "), ";
+		}
+		out += "]";
+		return out;
 	}
 
 }

@@ -21,7 +21,6 @@ public class KeyphraseFilter {
 	public KeyphraseFilter() {
 		//TODO: implement as config extractor
 		//TODO: completeness?
-		//TODO: what about ambiguous types?
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "once")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("simultaneously")));
 		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("coevally")));
@@ -46,41 +45,27 @@ public class KeyphraseFilter {
 	public List<Keyphrase> filter(List<INode> utteranceAsNodeList) {
 		List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 		for (int i = 0; i < utteranceAsNodeList.size(); i++) {
-			//TODO: reduce code duplication
-			for (List<String> keyphrase : wrappingKeyphrases) {
-				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, i, keyphrase, 0, new Keyphrase(KeyphraseType.WRAPPING));
+			i = checkKeyphrases(keyphrases, utteranceAsNodeList, wrappingKeyphrases, KeyphraseType.WRAPPING, i);
+			i = checkKeyphrases(keyphrases, utteranceAsNodeList, separatingKeyphrases, KeyphraseType.SEPARATING, i);
+			i = checkKeyphrases(keyphrases, utteranceAsNodeList, openingKeyphrases, KeyphraseType.OPENING, i);
+			i = checkKeyphrases(keyphrases, utteranceAsNodeList, endingKeyphrases, KeyphraseType.ENDING, i);
+		}
+		return keyphrases;
+	}
+
+	private int checkKeyphrases(List<Keyphrase> keyphrases, List<INode> utteranceAsNodeList, Set<List<String>> keyphraseStringList,
+			KeyphraseType keyphraseType, int index) {
+		for (List<String> keyphrase : keyphraseStringList) {
+			if (index < utteranceAsNodeList.size()) {
+				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, index, keyphrase, 0, new Keyphrase(keyphraseType));
 				if (currKP != null) {
 					keyphrases.add(currKP);
-					i = i + keyphrase.size() - 1;
-					break;
-				}
-			}
-			for (List<String> keyphrase : separatingKeyphrases) {
-				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, i, keyphrase, 0, new Keyphrase(KeyphraseType.SEPARATING));
-				if (currKP != null) {
-					keyphrases.add(currKP);
-					i = i + keyphrase.size() - 1;
-					break;
-				}
-			}
-			for (List<String> keyphrase : openingKeyphrases) {
-				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, i, keyphrase, 0, new Keyphrase(KeyphraseType.OPENING));
-				if (currKP != null) {
-					keyphrases.add(currKP);
-					i = i + keyphrase.size() - 1;
-					break;
-				}
-			}
-			for (List<String> keyphrase : endingKeyphrases) {
-				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, i, keyphrase, 0, new Keyphrase(KeyphraseType.ENDING));
-				if (currKP != null) {
-					keyphrases.add(currKP);
-					i = i + keyphrase.size() - 1;
+					index = index + keyphrase.size();
 					break;
 				}
 			}
 		}
-		return keyphrases;
+		return index;
 	}
 
 	private Keyphrase recursiveKeyphraseFind(List<INode> utteranceAsNodeList, int nodeIndex, List<String> keyphrase, int kpIndex,

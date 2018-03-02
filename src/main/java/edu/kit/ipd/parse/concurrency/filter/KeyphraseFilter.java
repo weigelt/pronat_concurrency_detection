@@ -44,28 +44,36 @@ public class KeyphraseFilter {
 
 	public List<Keyphrase> filter(List<INode> utteranceAsNodeList) {
 		List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
-		for (int i = 0; i < utteranceAsNodeList.size(); i++) {
-			i = checkKeyphrases(keyphrases, utteranceAsNodeList, wrappingKeyphrases, KeyphraseType.WRAPPING, i);
-			i = checkKeyphrases(keyphrases, utteranceAsNodeList, separatingKeyphrases, KeyphraseType.SEPARATING, i);
-			i = checkKeyphrases(keyphrases, utteranceAsNodeList, openingKeyphrases, KeyphraseType.OPENING, i);
-			i = checkKeyphrases(keyphrases, utteranceAsNodeList, endingKeyphrases, KeyphraseType.ENDING, i);
+		int i = 0;
+		while (i < utteranceAsNodeList.size()) {
+			Keyphrase curr = null;
+			if ((curr = checkKeyphrases(utteranceAsNodeList, wrappingKeyphrases, KeyphraseType.WRAPPING, i)) != null
+					|| (curr = checkKeyphrases(utteranceAsNodeList, separatingKeyphrases, KeyphraseType.SEPARATING, i)) != null
+					|| (curr = checkKeyphrases(utteranceAsNodeList, openingKeyphrases, KeyphraseType.OPENING, i)) != null
+					|| (curr = checkKeyphrases(utteranceAsNodeList, endingKeyphrases, KeyphraseType.ENDING, i)) != null) {
+				keyphrases.add(curr);
+			}
+			if (curr != null) {
+				i = i + curr.getAttachedNodes().size() - 1;
+			}
+			i++;
+
 		}
 		return keyphrases;
 	}
 
-	private int checkKeyphrases(List<Keyphrase> keyphrases, List<INode> utteranceAsNodeList, Set<List<String>> keyphraseStringList,
-			KeyphraseType keyphraseType, int index) {
+	private Keyphrase checkKeyphrases(List<INode> utteranceAsNodeList, Set<List<String>> keyphraseStringList, KeyphraseType keyphraseType,
+			int index) {
 		for (List<String> keyphrase : keyphraseStringList) {
 			if (index < utteranceAsNodeList.size()) {
 				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, index, keyphrase, 0, new Keyphrase(keyphraseType));
 				if (currKP != null) {
-					keyphrases.add(currKP);
-					index = index + keyphrase.size();
-					break;
+					return currKP;
+
 				}
 			}
 		}
-		return index;
+		return null;
 	}
 
 	private Keyphrase recursiveKeyphraseFind(List<INode> utteranceAsNodeList, int nodeIndex, List<String> keyphrase, int kpIndex,

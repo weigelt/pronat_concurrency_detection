@@ -50,4 +50,14 @@ public class ConcurrentAction {
 	public void addDependentPhrase(INode dependentPhrase) {
 		dependentPhrases.add(dependentPhrase);
 	}
+
+	@Override
+	public String toString() {
+		String out = "[keyphrase: " + getKeyphrase().toString() + " dependentNodes: ";
+		for (INode iNode : dependentPhrases) {
+			out += iNode.getAttributeValue("value") + "(" + iNode.getAttributeValue("position") + "), ";
+		}
+		out += "]";
+		return out;
+	}
 }

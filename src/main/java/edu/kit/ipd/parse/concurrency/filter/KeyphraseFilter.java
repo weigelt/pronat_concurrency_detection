@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
 import edu.kit.ipd.parse.concurrency.data.KeyphraseType;
 import edu.kit.ipd.parse.luna.graph.INode;
+import edu.kit.ipd.parse.luna.tools.ConfigManager;
 
 //TODO: Filter implementation per class: wrapping, separating etc.?
 public class KeyphraseFilter {
@@ -18,28 +20,26 @@ public class KeyphraseFilter {
 	private static Set<List<String>> openingKeyphrases = new HashSet<List<String>>();
 	private static Set<List<String>> endingKeyphrases = new HashSet<List<String>>();
 
+	private static final String WRAPPING_PROPERTY = "WRAPPING";
+	private static final String OPENING_PROPERTY = "OPENING";
+	private static final String SEPARATING_PROPERTY = "SEPARATING";
+	private static final String ENDING_PROPERTY = "ENDING";
+
 	public KeyphraseFilter() {
-		//TODO: implement as config extractor
-		//TODO: completeness?
-		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "once")));
-		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("simultaneously")));
-		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("coevally")));
-		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("concurrently")));
-		wrappingKeyphrases.add(new ArrayList<String>(Arrays.asList("synchronistically")));
 
-		//		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("and", "at", "the", "same", "time")));
-		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "the", "same", "time")));
-		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("while")));
-		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("meanwhile")));
-		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("in", "the", "meantime")));
-		//		separatingKeyphrases.add(new ArrayList<String>(Arrays.asList("and", "in", "the", "meantime")));
+		Properties props = ConfigManager.getConfiguration(getClass());
+		extractKeyphrasesFromProperties(props.getProperty(WRAPPING_PROPERTY), wrappingKeyphrases);
+		extractKeyphrasesFromProperties(props.getProperty(SEPARATING_PROPERTY), separatingKeyphrases);
+		extractKeyphrasesFromProperties(props.getProperty(OPENING_PROPERTY), openingKeyphrases);
+		extractKeyphrasesFromProperties(props.getProperty(ENDING_PROPERTY), endingKeyphrases);
 
-		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("during")));
-		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("and", "while")));
-		openingKeyphrases.add(new ArrayList<String>(Arrays.asList("while")));
+	}
 
-		endingKeyphrases.add(new ArrayList<String>(Arrays.asList("at", "the", "same", "time")));
-		endingKeyphrases.add(new ArrayList<String>(Arrays.asList("in", "the", "meantime")));
+	private void extractKeyphrasesFromProperties(String property, Set<List<String>> keyphraseSet) {
+		String[] prop = property.trim().split(", ");
+		for (String string : prop) {
+			keyphraseSet.add(new ArrayList<String>(Arrays.asList(string.trim().split(" "))));
+		}
 	}
 
 	public List<Keyphrase> filter(List<INode> utteranceAsNodeList) {

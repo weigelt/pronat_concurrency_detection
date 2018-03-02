@@ -36,20 +36,44 @@ public class GrammarFilter {
 	public List<ConcurrentAction> filter(List<Keyphrase> keyphrases) throws MissingDataException {
 		List<ConcurrentAction> conActions = new ArrayList<>();
 		for (Keyphrase keyphrase : keyphrases) {
-			switch (keyphrase.getType()) {
+			switch (keyphrase.getPrimaryType()) {
 			case WRAPPING:
 				spg = new WrappingGrammarFilter();
-				break;
-			case OPENING:
-				spg = new OpeningGrammarFilter();
 				break;
 			case SEPARATING:
 				spg = new SeparatingGrammarFilter();
 				break;
+			case OPENING:
+				spg = new OpeningGrammarFilter();
+				break;
+			case ENDING:
+				spg = new OpeningGrammarFilter();
+				break;
 			default:
 				break;
 			}
-			conActions.add(spg.filter(keyphrase));
+			ConcurrentAction result = spg.filter(keyphrase);
+			if (result == null) {
+				switch (keyphrase.getSecondaryType()) {
+				case WRAPPING:
+					spg = new WrappingGrammarFilter();
+					break;
+				case SEPARATING:
+					spg = new SeparatingGrammarFilter();
+					break;
+				case OPENING:
+					spg = new OpeningGrammarFilter();
+					break;
+				case ENDING:
+					spg = new OpeningGrammarFilter();
+					break;
+				default:
+					break;
+				}
+			}
+			if (result != null) {
+				conActions.add(result);
+			}
 		}
 		return conActions;
 	}

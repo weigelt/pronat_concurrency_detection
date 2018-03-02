@@ -7,19 +7,32 @@ import edu.kit.ipd.parse.luna.graph.INode;
 
 public class Keyphrase {
 
-	KeyphraseType type;
+	KeyphraseType priType = KeyphraseType.UNSET, secType = KeyphraseType.UNSET;
 	List<INode> attachedNodes;
 
-	public Keyphrase(KeyphraseType type) {
-		this.type = type;
+	public Keyphrase(KeyphraseType priType) {
+		this.priType = priType;
+		this.attachedNodes = new ArrayList<>();
+	}
+
+	public Keyphrase(KeyphraseType priType, KeyphraseType secType) {
+		this.priType = priType;
+		this.secType = secType;
 		this.attachedNodes = new ArrayList<>();
 	}
 
 	/**
-	 * @return the type
+	 * @return the primary type
 	 */
-	public KeyphraseType getType() {
-		return type;
+	public KeyphraseType getPrimaryType() {
+		return priType;
+	}
+
+	/**
+	 * @return the secondary type
+	 */
+	public KeyphraseType getSecondaryType() {
+		return secType;
 	}
 
 	/**
@@ -35,7 +48,7 @@ public class Keyphrase {
 
 	@Override
 	public String toString() {
-		String out = "[" + type.name() + ": ";
+		String out = "[" + priType.name() + "(" + secType.name() + "): ";
 		for (INode iNode : attachedNodes) {
 			out += iNode.getAttributeValue("value") + "(" + iNode.getAttributeValue("position") + "), ";
 		}

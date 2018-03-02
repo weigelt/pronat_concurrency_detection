@@ -71,6 +71,14 @@ public class KeyphraseFilter {
 					break;
 				}
 			}
+			for (List<String> keyphrase : endingKeyphrases) {
+				Keyphrase currKP = recursiveKeyphraseFind(utteranceAsNodeList, i, keyphrase, 0, new Keyphrase(KeyphraseType.ENDING));
+				if (currKP != null) {
+					keyphrases.add(currKP);
+					i = i + keyphrase.size() - 1;
+					break;
+				}
+			}
 		}
 		return keyphrases;
 	}

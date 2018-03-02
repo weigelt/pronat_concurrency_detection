@@ -14,13 +14,15 @@ public class SeparatingDependentNodesExtractor extends AbstractDependentNodesExt
 		INode prevEnd = determineEnd(keyphrase, previousAction, true);
 		INode followingBegin = determineBegin(followingAction, keyphrase, false);
 		INode followingEnd = determineEnd(keyphrase, followingAction, false);
-		return constructConcurrentAction(keyphrase, prevBegin, prevEnd, followingBegin, followingEnd);
+		return constructConcurrentAction(keyphrase, prevBegin, prevEnd, followingBegin, followingEnd, previousAction, followingAction);
 	}
 
 	private static ConcurrentAction constructConcurrentAction(Keyphrase keyphrase, INode prevStart, INode prevEnd, INode followingStart,
-			INode followingEnd) {
+			INode followingEnd, INode previousAction, INode followingAction) {
 		ConcurrentAction result = new ConcurrentAction();
 		result.setKeyphrase(keyphrase);
+		result.addDependentAction(previousAction);
+		result.addDependentAction(followingAction);
 		result.addDependentPhrase(prevStart);
 		INode currNode = prevStart;
 		do {

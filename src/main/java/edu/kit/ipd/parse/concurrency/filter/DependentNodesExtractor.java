@@ -13,12 +13,15 @@ public class DependentNodesExtractor extends AbstractDependentNodesExtractor {
 
 		INode begin = determineBegin(startingAction, keyphrase, left);
 		INode end = determineEnd(keyphrase, endingAction, left);
-		return constructConcurrentAction(keyphrase, begin, end);
+		return constructConcurrentAction(keyphrase, begin, end, startingAction, endingAction);
 	}
 
-	private static ConcurrentAction constructConcurrentAction(Keyphrase keyphrase, INode start, INode end) {
+	private static ConcurrentAction constructConcurrentAction(Keyphrase keyphrase, INode start, INode end, INode startingAction,
+			INode endingAction) {
 		ConcurrentAction result = new ConcurrentAction();
 		result.setKeyphrase(keyphrase);
+		result.addDependentAction(startingAction);
+		result.addDependentAction(endingAction);
 		result.addDependentPhrase(start);
 		INode currNode = start;
 		do {

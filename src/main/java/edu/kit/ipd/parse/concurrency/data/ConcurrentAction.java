@@ -85,4 +85,24 @@ public class ConcurrentAction {
 		out += "]";
 		return out;
 	}
+
+	public String getDependentPhrasesAsString() {
+		String out = "";
+		int j = 0, old_j = -1;
+		for (int i = 0; i < dependentPhrases.size(); i++) {
+			INode nodeToWrite = dependentPhrases.get(i);
+			if (old_j != j) {
+				out += j + ": ";
+				old_j = j;
+			}
+			out += nodeToWrite.getAttributeValue("value") + " ";
+			if (i + 1 < dependentPhrases.size()
+					&& (int) nodeToWrite.getAttributeValue("position") < (int) dependentPhrases.get(i + 1).getAttributeValue("position")) {
+				j++;
+				out.trim();
+				out += ", ";
+			}
+		}
+		return out;
+	}
 }

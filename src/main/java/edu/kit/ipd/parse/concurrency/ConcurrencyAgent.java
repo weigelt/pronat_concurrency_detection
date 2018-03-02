@@ -2,6 +2,8 @@ package edu.kit.ipd.parse.concurrency;
 
 import java.util.List;
 
+import org.kohsuke.MetaInfServices;
+
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
 import edu.kit.ipd.parse.concurrency.data.Utterance;
@@ -11,6 +13,7 @@ import edu.kit.ipd.parse.luna.agent.AbstractAgent;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.ParseGraph;
 
+@MetaInfServices(AbstractAgent.class)
 public class ConcurrencyAgent extends AbstractAgent {
 
 	KeyphraseFilter kf;

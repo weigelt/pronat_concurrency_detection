@@ -11,13 +11,23 @@ import edu.kit.ipd.parse.concurrency.filter.GrammarFilter;
 import edu.kit.ipd.parse.concurrency.filter.KeyphraseFilter;
 import edu.kit.ipd.parse.luna.agent.AbstractAgent;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
+import edu.kit.ipd.parse.luna.graph.IArcType;
+import edu.kit.ipd.parse.luna.graph.INode;
+import edu.kit.ipd.parse.luna.graph.INodeType;
 import edu.kit.ipd.parse.luna.graph.ParseGraph;
 
 @MetaInfServices(AbstractAgent.class)
 public class ConcurrencyAgent extends AbstractAgent {
 
-	static final String ARC_TYPE_RELATION = "relation";
-	static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
+	private static final String ARC_TYPE_RELATION = "relation";
+	private static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
+	private static final String ARC_TYPE_KEY_PHRASE = "keyPhrase";
+	private static final String ARC_TYPE_DEPENDENT_ACTION = "dependentAction";
+	private static final String NODE_TYPE_CONCURRENT_ACTION = "concurrentAction";
+
+	private IArcType keyPhraseType;
+	private IArcType dependentActionType;
+	private INodeType concurrentActionType;
 
 	KeyphraseFilter kf;
 	GrammarFilter gf;
@@ -36,6 +46,11 @@ public class ConcurrencyAgent extends AbstractAgent {
 		if (!checkMandatoryPreconditions()) {
 			return;
 		}
+
+		keyPhraseType = createKeyphraseArcType();
+		dependentActionType = createDependentActionArcType();
+		concurrentActionType = createConcurrentActionNodeType();
+
 		ParseGraph graphAsParseGraph = (ParseGraph) graph;
 		utterance = new Utterance(graphAsParseGraph);
 		List<Keyphrase> keywords = kf.filter(utterance.giveUtteranceAsNodeList());
@@ -46,8 +61,8 @@ public class ConcurrencyAgent extends AbstractAgent {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		//TODO: add optional filter for coref or eventcoref?
+		writeToGraph(conActions);
 	}
 
 	/**
@@ -66,4 +81,58 @@ public class ConcurrencyAgent extends AbstractAgent {
 		return false;
 	}
 
+	private void writeToGraph(List<ConcurrentAction> conActions) {
+		for (ConcurrentAction concurrentAction : conActions) {
+			Keyphrase currKPtoWrite = concurrentAction.getKeyphrase();
+			INode currConActNode;
+			for (int i = 0; i < currKPtoWrite.getAttachedNodes().size(); i++) {
+				INode currKPNode = currKPtoWrite.getAttachedNodes().get(i);
+				if (i == 0) {
+					if (!currKPNode.getIncomingArcsOfType(keyPhraseType).isEmpty() && currKPNode.getIncomingArcsOfType(keyPhraseType).get(0)
+							.getSourceNode().getType().equals(concurrentActionType)) {
+						//we already have a conc action node and this is also the source
+						currConActNode = currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode();
+					} else {
+
+					}
+				}
+
+			}
+		}
+
+	}
+
+	private IArcType createKeyphraseArcType() {
+		if (!graph.hasArcType(ARC_TYPE_KEY_PHRASE)) {
+			IArcType kpat = graph.createArcType(ARC_TYPE_KEY_PHRASE);
+			kpat.addAttributeToType("String", "verfiedByDA");
+			kpat.addAttributeToType("String", "type");
+			return kpat;
+		} else {
+			return graph.getArcType(ARC_TYPE_KEY_PHRASE);
+		}
+	}
+
+	private IArcType createDependentActionArcType() {
+		if (!graph.hasArcType(ARC_TYPE_DEPENDENT_ACTION)) {
+			IArcType daat = graph.createArcType(ARC_TYPE_DEPENDENT_ACTION);
+			daat.addAttributeToType("int", "position");
+			daat.addAttributeToType("String", "verfiedByDA");
+			return daat;
+		} else {
+			return graph.getArcType(ARC_TYPE_DEPENDENT_ACTION);
+		}
+	}
+
+	private INodeType createConcurrentActionNodeType() {
+		if (!graph.hasNodeType(NODE_TYPE_CONCURRENT_ACTION)) {
+			INodeType cant = graph.createNodeType(NODE_TYPE_CONCURRENT_ACTION);
+			cant.addAttributeToType("String", "keyphrase");
+			cant.addAttributeToType("String", "type");
+			cant.addAttributeToType("String", "dependentPhrases");
+			return cant;
+		} else {
+			return graph.getNodeType(NODE_TYPE_CONCURRENT_ACTION);
+		}
+	}
 }

@@ -27,6 +27,7 @@ public class OpeningDependentNodesExtractor extends AbstractDependentNodesExtrac
 			currNode = currNode.getOutgoingArcsOfType(GrammarFilter.nextArcType).get(0).getTargetNode();
 			result.addDependentPhrase(currNode);
 		} while (currNode != prevEnd);
+		result.addDependentPhrase(followingStart);
 		currNode = followingStart;
 		do {
 			currNode = currNode.getOutgoingArcsOfType(GrammarFilter.nextArcType).get(0).getTargetNode();

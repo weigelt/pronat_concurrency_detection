@@ -12,6 +12,7 @@ import edu.kit.ipd.parse.concurrency.filter.GrammarFilter;
 import edu.kit.ipd.parse.concurrency.filter.KeyphraseFilter;
 import edu.kit.ipd.parse.luna.agent.AbstractAgent;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
+import edu.kit.ipd.parse.luna.graph.IArc;
 import edu.kit.ipd.parse.luna.graph.IArcType;
 import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.graph.INodeType;
@@ -83,37 +84,101 @@ public class ConcurrencyAgent extends AbstractAgent {
 	}
 
 	private void writeToGraph(List<ConcurrentAction> conActions) {
+		INodeType tokenType = graph.getNodeType("token");
 		for (ConcurrentAction concurrentAction : conActions) {
 			Keyphrase currKPtoWrite = concurrentAction.getKeyphrase();
-			INode currConActNode;
+			INode currConActNode = null;
 			for (int i = 0; i < currKPtoWrite.getAttachedNodes().size(); i++) {
 				INode currKPNode = currKPtoWrite.getAttachedNodes().get(i);
 				if (i == 0) {
 					if (!currKPNode.getIncomingArcsOfType(keyPhraseType).isEmpty() && currKPNode.getIncomingArcsOfType(keyPhraseType).get(0)
 							.getSourceNode().getType().equals(concurrentActionType)) {
-						//we already have a concurrent action node and this is also the source
-						//TODO: what if the source node is not the concurrent action node but a token node instead?
+						// we already have a concurrent action node and this is also the source
+						// TODO: what if the source node is not the concurrent action node but a token node instead?
 						currConActNode = currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode();
 					} else {
-						//we don't have a concurrent action node. Thus, we create one!
+						// we don't have a concurrent action node. Thus, we create one!
 						currConActNode = graph.createNode(concurrentActionType);
 						currConActNode.setAttributeValue("keyphrase", currKPtoWrite.getKeyphraseAsString());
 						String type = currKPtoWrite.getSecondaryType().equals(KeyphraseType.UNSET) ? currKPtoWrite.getPrimaryType().name()
 								: currKPtoWrite.getPrimaryType() + "/" + currKPtoWrite.getSecondaryType().name();
 						currConActNode.setAttributeValue("type", type);
 						currConActNode.setAttributeValue("dependentPhrases", concurrentAction.getDependentPhrasesAsString());
+						IArc newArc = graph.createArc(currConActNode, currKPNode, keyPhraseType);
+						// create according arc
+						newArc.setAttributeValue("verfiedByDA", false);
+						newArc.setAttributeValue("type", type);
+						// create dep action links
+						for (int j = 0; j < concurrentAction.getDependentActions().size(); j++) {
+							IArc currDepArc = graph.createArc(currConActNode, concurrentAction.getDependentActions().get(i),
+									dependentActionType);
+							currDepArc.setAttributeValue("verfiedByDA", false);
+							currDepArc.setAttributeValue("position", i);
+						}
+					}
+				} else {
+					// i>0
+					if (!currKPNode.getIncomingArcsOfType(keyPhraseType).isEmpty()) {
+						// we already have keyphrase arc
+						if (currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode().getType().equals(concurrentActionType)) {
+							// but it points to a node o.0
+							if ((boolean) currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getAttributeValue("verfiedByDA")) {
+								//TODO: might crash iff "verfiedByDA" is unset
+								//but it has been verfied by the da
+								cleanUp(currConActNode);
+								// set the new curr con act node
+								currConActNode = currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode();
+								// we have to clean up the previously build con node
+								//TODO: what if null?
+							}
+							// we have to clean up!
+							cleanUp(currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode());
+
+						} else if (currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode().getType().equals(tokenType)) {
+							//and it points to a token node...
+							if (!currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode()
+									.equals(currKPtoWrite.getAttachedNodes().get(i - 1))) {
+								// but it's not the right one
+								// TODO: what now? Throw an exception
+							}
+							// it's the right node... everything's fine!
+						}
+					} else {
+						// create intermediate arc
+						createKeyPhraseArc(from, to, type);
 					}
 				}
-				//go on from here
 			}
 		}
 
 	}
 
+	private void cleanUp(INode sourceNode) {
+		if (sourceNode == null) {
+			return;
+		}
+		for (IArc depAction : sourceNode.getOutgoingArcsOfType(dependentActionType)) {
+			graph.deleteArc(depAction);
+		}
+		for (IArc keyPhrase : sourceNode.getOutgoingArcsOfType(keyPhraseType)) {
+			INode nextNode = keyPhrase.getTargetNode();
+			graph.deleteArc(keyPhrase);
+
+			while (nextNode.getIncomingArcsOfType(keyPhraseType).size() < 1) {
+				// we stop when the node has more than one incomming keyphrase arcs,
+				// i.e. it has one that comes from a conc Action node and one that comes from a token
+				// (this one was deleted in the step before)
+				IArc nextArc = nextNode.getOutgoingArcsOfType(keyPhraseType).get(0);
+				nextNode = nextArc.getTargetNode();
+				graph.deleteArc(nextArc);
+			}
+		}
+	}
+
 	private IArcType createKeyphraseArcType() {
 		if (!graph.hasArcType(ARC_TYPE_KEY_PHRASE)) {
 			IArcType kpat = graph.createArcType(ARC_TYPE_KEY_PHRASE);
-			kpat.addAttributeToType("String", "verfiedByDA");
+			kpat.addAttributeToType("boolean", "verfiedByDA");
 			kpat.addAttributeToType("String", "type");
 			return kpat;
 		} else {
@@ -142,5 +207,12 @@ public class ConcurrencyAgent extends AbstractAgent {
 		} else {
 			return graph.getNodeType(NODE_TYPE_CONCURRENT_ACTION);
 		}
+	}
+
+	private void createKeyPhraseArc(INode from, INode to, String type) {
+		IArc newArc = graph.createArc(from, to, keyPhraseType);
+		// create according arc
+		newArc.setAttributeValue("verfiedByDA", false);
+		newArc.setAttributeValue("type", type);
 	}
 }

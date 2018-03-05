@@ -46,20 +46,34 @@ public class KeyphraseFilter {
 		List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 		int i = 0;
 		while (i < utteranceAsNodeList.size()) {
-			Keyphrase curr = null;
-			if ((curr = checkKeyphrases(utteranceAsNodeList, wrappingKeyphrases, KeyphraseType.WRAPPING, i)) != null
-					|| (curr = checkKeyphrases(utteranceAsNodeList, separatingKeyphrases, KeyphraseType.SEPARATING, i)) != null
-					|| (curr = checkKeyphrases(utteranceAsNodeList, openingKeyphrases, KeyphraseType.OPENING, i)) != null
-					|| (curr = checkKeyphrases(utteranceAsNodeList, endingKeyphrases, KeyphraseType.ENDING, i)) != null) {
-				keyphrases.add(curr);
-			}
+
+			Keyphrase curr = checkKeyphrases(utteranceAsNodeList, wrappingKeyphrases, KeyphraseType.WRAPPING, i);
+			curr = decidePrimaryOrSecondary(utteranceAsNodeList, i, curr, separatingKeyphrases, KeyphraseType.SEPARATING);
+			curr = decidePrimaryOrSecondary(utteranceAsNodeList, i, curr, openingKeyphrases, KeyphraseType.OPENING);
+			curr = decidePrimaryOrSecondary(utteranceAsNodeList, i, curr, endingKeyphrases, KeyphraseType.ENDING);
 			if (curr != null) {
+				keyphrases.add(curr);
 				i = i + curr.getAttachedNodes().size() - 1;
 			}
 			i++;
 
 		}
 		return keyphrases;
+
+	}
+
+	private Keyphrase decidePrimaryOrSecondary(List<INode> utteranceAsNodeList, int i, Keyphrase curr,
+			Set<List<String>> keyphraseStringList, KeyphraseType keyphraseType) {
+		Keyphrase sec = null;
+		if ((sec = checkKeyphrases(utteranceAsNodeList, keyphraseStringList, keyphraseType, i)) != null) {
+			if (curr == null) {
+				curr = sec;
+
+			} else if (curr.getKeyphraseAsString().equals(sec.getKeyphraseAsString())) {
+				curr.setSecondaryType(keyphraseType);
+			}
+		}
+		return curr;
 	}
 
 	private Keyphrase checkKeyphrases(List<INode> utteranceAsNodeList, Set<List<String>> keyphraseStringList, KeyphraseType keyphraseType,

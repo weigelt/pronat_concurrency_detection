@@ -35,6 +35,10 @@ public class Keyphrase {
 		return secType;
 	}
 
+	public void setSecondaryType(KeyphraseType secType) {
+		this.secType = secType;
+	}
+
 	/**
 	 * @return the attachedNode
 	 */

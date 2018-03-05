@@ -47,7 +47,7 @@ public class GrammarFilter {
 				spg = new OpeningGrammarFilter();
 				break;
 			case ENDING:
-				spg = new OpeningGrammarFilter();
+				spg = new EndingGrammarFilter();
 				break;
 			default:
 				break;
@@ -65,11 +65,12 @@ public class GrammarFilter {
 					spg = new OpeningGrammarFilter();
 					break;
 				case ENDING:
-					spg = new OpeningGrammarFilter();
+					spg = new EndingGrammarFilter();
 					break;
 				default:
 					break;
 				}
+				result = spg.filter(keyphrase);
 			}
 			if (result != null) {
 				conActions.add(result);

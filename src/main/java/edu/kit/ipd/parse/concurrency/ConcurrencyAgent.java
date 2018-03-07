@@ -109,10 +109,10 @@ public class ConcurrencyAgent extends AbstractAgent {
 						newArc.setAttributeValue("type", type);
 						// create dep action links
 						for (int j = 0; j < concurrentAction.getDependentActions().size(); j++) {
-							IArc currDepArc = graph.createArc(currConActNode, concurrentAction.getDependentActions().get(i),
+							IArc currDepArc = graph.createArc(currConActNode, concurrentAction.getDependentActions().get(j),
 									dependentActionType);
 							currDepArc.setAttributeValue("verfiedByDA", false);
-							currDepArc.setAttributeValue("position", i);
+							currDepArc.setAttributeValue("position", j);
 						}
 					}
 				} else {

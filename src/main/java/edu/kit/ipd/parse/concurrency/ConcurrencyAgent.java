@@ -64,7 +64,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 			e.printStackTrace();
 		}
 		//TODO: add optional filter for coref or eventcoref?
-		//writeToGraph(conActions);
+		writeToGraph(conActions);
 	}
 
 	/**
@@ -100,8 +100,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 						// we don't have a concurrent action node. Thus, we create one!
 						currConActNode = graph.createNode(concurrentActionType);
 						currConActNode.setAttributeValue("keyphrase", currKPtoWrite.getKeyphraseAsString());
-						String type = currKPtoWrite.getSecondaryType().equals(KeyphraseType.UNSET) ? currKPtoWrite.getPrimaryType().name()
-								: currKPtoWrite.getPrimaryType() + "/" + currKPtoWrite.getSecondaryType().name();
+						String type = convertTypeToString(currKPtoWrite);
 						currConActNode.setAttributeValue("type", type);
 						currConActNode.setAttributeValue("dependentPhrases", concurrentAction.getDependentPhrasesAsString());
 						IArc newArc = graph.createArc(currConActNode, currKPNode, keyPhraseType);
@@ -139,13 +138,14 @@ public class ConcurrencyAgent extends AbstractAgent {
 							if (!currKPNode.getIncomingArcsOfType(keyPhraseType).get(0).getSourceNode()
 									.equals(currKPtoWrite.getAttachedNodes().get(i - 1))) {
 								// but it's not the right one
-								// TODO: what now? Throw an exception
+								// TODO: what now? Throw an exception?
 							}
 							// it's the right node... everything's fine!
 						}
 					} else {
+						// that's the good case. We simply add a new arc from the first to the next node of the keyphrase
 						// create intermediate arc
-						createKeyPhraseArc(from, to, type);
+						createKeyPhraseArc(currKPtoWrite.getAttachedNodes().get(i - 1), currKPNode, convertTypeToString(currKPtoWrite));
 					}
 				}
 			}
@@ -214,5 +214,10 @@ public class ConcurrencyAgent extends AbstractAgent {
 		// create according arc
 		newArc.setAttributeValue("verfiedByDA", false);
 		newArc.setAttributeValue("type", type);
+	}
+
+	private String convertTypeToString(Keyphrase currKPtoWrite) {
+		return currKPtoWrite.getSecondaryType().equals(KeyphraseType.UNSET) ? currKPtoWrite.getPrimaryType().name()
+				: currKPtoWrite.getPrimaryType() + "/" + currKPtoWrite.getSecondaryType().name();
 	}
 }

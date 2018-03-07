@@ -51,36 +51,9 @@ public class ConcurrencyAgentTest {
 		concAgent.init();
 	}
 
-	@Test
-	public void wrappingTestLeft() {
-		ppd = new PrePipelineData();
-		//@formatter:off
-		String input = "the dog jumps and the horse looks at once";
-		//@formatter:on
-		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
-
-		IGraph graph = executePreviousStages(ppd);
-		concAgent.setGraph(graph);
-		concAgent.exec();
-		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
-		Assert.assertEquals(1, actions.size());
-		ConcurrentAction action = actions.get(0);
-		String[] expected = new String[] { "at", "once" };
-		int i = 0;
-		for (INode node : action.getKeyphrase().getAttachedNodes()) {
-			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
-			i++;
-		}
-		int[] expectedSpan = new int[] { 0, 6 };
-		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
-		Assert.assertEquals(expectedSpan[1],
-				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
-
-	}
-
 	@Ignore("not working yet")
 	@Test
-	public void openingTest() {
+	public void separatingTest() {
 		ppd = new PrePipelineData();
 		//@formatter:off
 		String input = "the robot grabs a cup meanwhile Jack goes to the fridge";
@@ -125,7 +98,7 @@ public class ConcurrencyAgentTest {
 	}
 
 	@Test
-	public void openingTestImperative() {
+	public void separatingTestImperative() {
 		ppd = new PrePipelineData();
 		//@formatter:off
 		String input = "Armar go to the fridge in the meantime look at the recipe";
@@ -165,6 +138,33 @@ public class ConcurrencyAgentTest {
 			index++;
 		}
 		Assert.assertEquals("After span does not end where expected", expectedSpanAfter[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
+	@Test
+	public void wrappingTestLeft() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "the dog jumps and the horse looks at once";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "at", "once" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpan = new int[] { 0, 6 };
+		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
+		Assert.assertEquals(expectedSpan[1],
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 
 	}
@@ -217,6 +217,60 @@ public class ConcurrencyAgentTest {
 			i++;
 		}
 		int[] expectedSpan = new int[] { 2, 10 };
+		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
+		Assert.assertEquals(expectedSpan[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
+	@Test
+	public void endingTest() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "the dog jumps and the horse looks at the same time";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "at", "the", "same", "time" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpan = new int[] { 0, 6 };
+		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
+		Assert.assertEquals(expectedSpan[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
+	@Test
+	public void openingTest() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "while the dog jumps the horse looks at the stable";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "while" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpan = new int[] { 1, 9 };
 		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
 		Assert.assertEquals(expectedSpan[1],
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));

@@ -25,16 +25,16 @@ public class SeparatingDependentNodesExtractor extends AbstractDependentNodesExt
 		result.addDependentAction(followingAction);
 		result.addDependentPhrase(prevStart);
 		INode currNode = prevStart;
-		do {
+		while (currNode != prevEnd && !currNode.getOutgoingArcsOfType(GrammarFilter.nextArcType).isEmpty()) {
 			currNode = currNode.getOutgoingArcsOfType(GrammarFilter.nextArcType).get(0).getTargetNode();
 			result.addDependentPhrase(currNode);
-		} while (currNode != prevEnd);
+		}
 		result.addDependentPhrase(followingStart);
 		currNode = followingStart;
-		do {
+		while (currNode != followingEnd && !currNode.getOutgoingArcsOfType(GrammarFilter.nextArcType).isEmpty()) {
 			currNode = currNode.getOutgoingArcsOfType(GrammarFilter.nextArcType).get(0).getTargetNode();
 			result.addDependentPhrase(currNode);
-		} while (currNode != followingEnd);
+		}
 		return result;
 	}
 }

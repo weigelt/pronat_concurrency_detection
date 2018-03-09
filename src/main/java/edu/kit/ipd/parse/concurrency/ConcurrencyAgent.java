@@ -24,8 +24,8 @@ public class ConcurrencyAgent extends AbstractAgent {
 	private static final String NODE_TYPE_TOKEN = "token";
 	private static final String ARC_TYPE_RELATION = "relation";
 	private static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
-	private static final String ARC_TYPE_KEY_PHRASE = "keyPhrase";
-	private static final String ARC_TYPE_DEPENDENT_ACTION = "dependentAction";
+	private static final String ARC_TYPE_KEY_PHRASE = "concurrentActionKeyPhrase";
+	private static final String ARC_TYPE_DEPENDENT_ACTION = "dependentconcurrentAction";
 	private static final String NODE_TYPE_CONCURRENT_ACTION = "concurrentAction";
 
 	private IArcType keyPhraseType;

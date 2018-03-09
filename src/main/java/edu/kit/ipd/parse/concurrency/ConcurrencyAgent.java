@@ -21,6 +21,7 @@ import edu.kit.ipd.parse.luna.graph.ParseGraph;
 @MetaInfServices(AbstractAgent.class)
 public class ConcurrencyAgent extends AbstractAgent {
 
+	private static final String NODE_TYPE_TOKEN = "token";
 	private static final String ARC_TYPE_RELATION = "relation";
 	private static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
 	private static final String ARC_TYPE_KEY_PHRASE = "keyPhrase";
@@ -77,7 +78,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 	}
 
 	private boolean checkMandatoryPreconditions() {
-		if (graph.hasArcType("relation") && graph.hasArcType("relationInAction")) {
+		if (graph.hasArcType(ARC_TYPE_RELATION) && graph.hasArcType(ARC_TYPE_RELATION_IN_ACTION) && graph.hasNodeType(NODE_TYPE_TOKEN)) {
 			return true;
 		}
 		return false;

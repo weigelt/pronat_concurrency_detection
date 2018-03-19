@@ -4,6 +4,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
+import edu.kit.ipd.parse.concurrency.data.KeyphraseType;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.INode;
 
@@ -25,9 +26,11 @@ public class OpeningGrammarFilter extends AbstractSpecializedGrammarFilter {
 		ConcurrentAction result = null;
 		if (firstRightAction != null && secondRightAction != null) {
 			result = rightWithoutAndCase(firstRightAction, secondRightAction, keyphrase);
+			result.setUsedType(KeyphraseType.OPENING);
 		} else {
 			//TODO: what now?
 		}
+
 		return result;
 	}
 

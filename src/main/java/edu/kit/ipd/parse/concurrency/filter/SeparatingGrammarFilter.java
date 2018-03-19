@@ -4,6 +4,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
+import edu.kit.ipd.parse.concurrency.data.KeyphraseType;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.INode;
 
@@ -22,9 +23,12 @@ public class SeparatingGrammarFilter extends AbstractSpecializedGrammarFilter {
 		INode firstLeftAction = leftActions[1];
 		INode firstRightAction = rightActions[1];
 
+		ConcurrentAction result = null;
 		if (firstLeftAction != null && firstRightAction != null) {
-			return SeparatingDependentNodesExtractor.extract(keyphrase, firstLeftAction, firstRightAction);
+			result = SeparatingDependentNodesExtractor.extract(keyphrase, firstLeftAction, firstRightAction);
+			result.setUsedType(KeyphraseType.SEPARATING);
 		}
+
 		return null;
 	}
 

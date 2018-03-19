@@ -101,7 +101,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 						// we don't have a concurrent action node. Thus, we create one!
 						currConActNode = graph.createNode(concurrentActionType);
 						currConActNode.setAttributeValue("keyphrase", currKPtoWrite.getKeyphraseAsString());
-						String type = convertTypeToString(currKPtoWrite);
+						String type = concurrentAction.getUsedType().name();
 						currConActNode.setAttributeValue("type", type);
 						currConActNode.setAttributeValue("dependentPhrases", concurrentAction.getDependentPhrasesAsString());
 						IArc newArc = graph.createArc(currConActNode, currKPNode, keyPhraseType);

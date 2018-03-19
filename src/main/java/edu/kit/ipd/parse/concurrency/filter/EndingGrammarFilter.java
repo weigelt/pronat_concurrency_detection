@@ -4,6 +4,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
+import edu.kit.ipd.parse.concurrency.data.KeyphraseType;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.INode;
 
@@ -25,6 +26,7 @@ public class EndingGrammarFilter extends AbstractSpecializedGrammarFilter {
 		ConcurrentAction result = null;
 		if (firstLeftAction != null && secondLeftAction != null && leftAnd.getValue()) {
 			result = leftAndCase(firstLeftAction, secondLeftAction, keyphrase);
+			result.setUsedType(KeyphraseType.ENDING);
 		} else {
 			//TODO: what now?
 		}

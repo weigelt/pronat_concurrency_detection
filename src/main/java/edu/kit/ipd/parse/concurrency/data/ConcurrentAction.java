@@ -10,6 +10,8 @@ public class ConcurrentAction {
 	private List<INode> dependentPhrases;
 	private List<INode> dependentActions;
 
+	private KeyphraseType usedType = KeyphraseType.UNSET;
+
 	public ConcurrentAction() {
 		this.dependentPhrases = new ArrayList<>();
 		this.dependentActions = new ArrayList<>();
@@ -78,7 +80,7 @@ public class ConcurrentAction {
 
 	@Override
 	public String toString() {
-		String out = "[keyphrase: " + getKeyphrase().toString() + " dependentNodes: ";
+		String out = "[keyphrase (usedType:" + getUsedType().name() + "): " + getKeyphrase().toString() + " dependentNodes: ";
 		for (INode iNode : dependentPhrases) {
 			out += iNode.getAttributeValue("value") + "(" + iNode.getAttributeValue("position") + "), ";
 		}
@@ -104,5 +106,20 @@ public class ConcurrentAction {
 			}
 		}
 		return out;
+	}
+
+	/**
+	 * @return the usedType
+	 */
+	public KeyphraseType getUsedType() {
+		return usedType;
+	}
+
+	/**
+	 * @param usedType
+	 *            the usedType to set
+	 */
+	public void setUsedType(KeyphraseType usedType) {
+		this.usedType = usedType;
 	}
 }

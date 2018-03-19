@@ -4,6 +4,7 @@ import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
+import edu.kit.ipd.parse.concurrency.data.KeyphraseType;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.INode;
 
@@ -34,6 +35,9 @@ public class WrappingGrammarFilter extends AbstractSpecializedGrammarFilter {
 			result = rightWithoutAndCase(firstRightAction, secondRightAction, keyphrase);
 		} else {
 			//TODO: what now?
+		}
+		if (result != null) {
+			result.setUsedType(KeyphraseType.WRAPPING);
 		}
 		return result;
 	}

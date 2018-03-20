@@ -39,6 +39,7 @@ public class CorefExtender {
 			ConcurrentAction concAction = concurrentActions.get(i);
 			switch (concAction.getUsedType()) {
 			case WRAPPING:
+				spcex = new WrappingCorefExtender();
 				break;
 
 			case SEPARATING:

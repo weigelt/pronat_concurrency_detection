@@ -5,15 +5,25 @@ import java.util.List;
 
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
+import edu.kit.ipd.parse.luna.graph.IArcType;
 import edu.kit.ipd.parse.luna.graph.INode;
+import edu.kit.ipd.parse.luna.graph.INodeType;
 import edu.kit.ipd.parse.luna.graph.Pair;
+import edu.kit.ipd.parse.luna.graph.ParseGraph;
 
 public class CorefExtender {
 
 	ISpecializedCorefExtender spcex;
+	private final ParseGraph pgStub = new ParseGraph();
+	static IArcType referenceArcType;
+	static INodeType entityNodeType;
+
+	private static final String REFERENCE = "reference";
+	private static final String ENTITY_NODE_TYPE = "contextEntity";
 
 	public CorefExtender() {
-
+		referenceArcType = pgStub.createArcType(REFERENCE);
+		entityNodeType = pgStub.createNodeType(ENTITY_NODE_TYPE);
 	}
 
 	public void extendBlocks(List<ConcurrentAction> concurrentActions) throws MissingDataException {

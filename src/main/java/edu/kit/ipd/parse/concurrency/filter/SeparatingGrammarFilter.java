@@ -29,7 +29,7 @@ public class SeparatingGrammarFilter extends AbstractSpecializedGrammarFilter {
 			result.setUsedType(KeyphraseType.SEPARATING);
 		}
 
-		return null;
+		return result;
 	}
 
 }

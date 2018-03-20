@@ -169,6 +169,34 @@ public class ConcurrencyAgentTest {
 
 	}
 
+	@Ignore("wip")
+	@Test
+	public void wrappingTestTwoEntitiesLeft() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "the dog and the horse go to the stable at once";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "at", "once" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpan = new int[] { 0, 5 };
+		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
+		Assert.assertEquals(expectedSpan[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
 	@Test
 	public void wrappingTestRight() {
 		ppd = new PrePipelineData();

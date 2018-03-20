@@ -48,7 +48,7 @@ public class CorefExtender {
 				spcex = new OpeningCorefExtender();
 				break;
 			case ENDING:
-
+				spcex = new EndingCorefExtender();
 				break;
 			default:
 				break;

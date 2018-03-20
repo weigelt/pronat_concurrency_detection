@@ -8,6 +8,7 @@ import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
 import edu.kit.ipd.parse.concurrency.data.Keyphrase;
 import edu.kit.ipd.parse.concurrency.data.KeyphraseType;
 import edu.kit.ipd.parse.concurrency.data.Utterance;
+import edu.kit.ipd.parse.concurrency.filter.CorefExtender;
 import edu.kit.ipd.parse.concurrency.filter.GrammarFilter;
 import edu.kit.ipd.parse.concurrency.filter.KeyphraseFilter;
 import edu.kit.ipd.parse.luna.agent.AbstractAgent;
@@ -34,6 +35,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 
 	KeyphraseFilter kf;
 	GrammarFilter gf;
+	CorefExtender ce;
 	Utterance utterance;
 	List<ConcurrentAction> conActions;
 
@@ -41,6 +43,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 	public void init() {
 		kf = new KeyphraseFilter();
 		gf = new GrammarFilter();
+		ce = new CorefExtender();
 	}
 
 	@Override
@@ -59,6 +62,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 		List<Keyphrase> keywords = kf.filter(utterance.giveUtteranceAsNodeList());
 		try {
 			conActions = gf.filter(keywords);
+			ce.extendBlocks(conActions, utterance);
 		} catch (MissingDataException e) {
 			//TODO Logger and return!
 			// TODO Auto-generated catch block

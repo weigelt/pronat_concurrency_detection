@@ -25,12 +25,9 @@ public class OpeningCorefExtender implements ISpecializedCorefExtender {
 			int maxPosition = GrammarFilter
 					.getPositionOfNode(concurrentAction.getDependentPhrases().get(concurrentAction.getDependentPhrases().size() - 1));
 			for (INode entity : entities) {
-				Set<IArc> referents = filterReferentRelations(entity.getIncomingArcsOfType(CorefExtender.contextRelationArcType));
-				for (IArc iArc : referents) {
-					int position = getPositionOfReferenceNode(iArc.getSourceNode(), false);
-					if (position > maxPosition && position < boundary) {
-						maxPosition = position;
-					}
+				int result = getMaxPositionFromCorefChain(entity, maxPosition, boundary, false);
+				if (checkIfExtending(result, maxPosition, boundary, false)) {
+					maxPosition = result;
 				}
 			}
 			List<INode> nodes = utterance.giveUtteranceAsNodeList();
@@ -48,6 +45,51 @@ public class OpeningCorefExtender implements ISpecializedCorefExtender {
 
 		}
 
+	}
+
+	private int getMaxPositionFromCorefChain(INode entity, int refPosition, int boundary, boolean left) throws MissingDataException {
+		int result = refPosition;
+		Set<IArc> arcs;
+		if (left) {
+			arcs = filterReferentRelations(entity.getOutgoingArcsOfType(CorefExtender.contextRelationArcType));
+		} else {
+			arcs = filterReferentRelations(entity.getIncomingArcsOfType(CorefExtender.contextRelationArcType));
+		}
+		if (arcs.isEmpty()) {
+			return result;
+		} else {
+			for (IArc iArc : arcs) {
+				INode positionNode;
+				if (left) {
+					positionNode = iArc.getTargetNode();
+				} else {
+					positionNode = iArc.getSourceNode();
+				}
+				int position = getPositionOfReferenceNode(positionNode, left);
+				if (checkIfExtending(position, result, boundary, left)) {
+					result = position;
+					int maxChain = getMaxPositionFromCorefChain(positionNode, result, boundary, left);
+					if (checkIfExtending(maxChain, result, boundary, left)) {
+						result = maxChain;
+					}
+
+				}
+			}
+		}
+		return result;
+	}
+
+	private boolean checkIfExtending(int position, int previous, int boundary, boolean left) {
+		if (left) {
+			if (position < previous && position > boundary) {
+				return true;
+			}
+		} else {
+			if (position > previous && position < boundary) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private int getPositionOfReferenceNode(INode entityNode, boolean left) throws MissingDataException {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.kit.ipd.parse.concurrency.data.ConcurrentAction;
+import edu.kit.ipd.parse.concurrency.data.Utterance;
 import edu.kit.ipd.parse.luna.data.MissingDataException;
 import edu.kit.ipd.parse.luna.graph.IArcType;
 import edu.kit.ipd.parse.luna.graph.INode;
@@ -15,18 +16,24 @@ public class CorefExtender {
 
 	ISpecializedCorefExtender spcex;
 	private final ParseGraph pgStub = new ParseGraph();
-	static IArcType referenceArcType;
+	static IArcType entityReferenceArcType;
+	static IArcType contextRelationArcType;
 	static INodeType entityNodeType;
 
 	private static final String REFERENCE = "reference";
 	private static final String ENTITY_NODE_TYPE = "contextEntity";
+	private static final String RELATION_ARC_TYPE = "contextRelation";
+	static final String REFERENT_RELATION_TYPE = "referentRelation";
+	static final String RELATION_TYPE_NAME = "typeOfRelation";
+	static final String CONFIDENCE_NAME = "confidence";
 
 	public CorefExtender() {
-		referenceArcType = pgStub.createArcType(REFERENCE);
+		entityReferenceArcType = pgStub.createArcType(REFERENCE);
+		contextRelationArcType = pgStub.createArcType(RELATION_ARC_TYPE);
 		entityNodeType = pgStub.createNodeType(ENTITY_NODE_TYPE);
 	}
 
-	public void extendBlocks(List<ConcurrentAction> concurrentActions) throws MissingDataException {
+	public void extendBlocks(List<ConcurrentAction> concurrentActions, Utterance utterance) throws MissingDataException {
 		List<Pair<Integer, Integer>> boundaries = getBoundaries(concurrentActions);
 		for (int i = 0; i < concurrentActions.size(); i++) {
 			ConcurrentAction concAction = concurrentActions.get(i);
@@ -46,7 +53,7 @@ public class CorefExtender {
 			default:
 				break;
 			}
-			spcex.extendBlocks(concAction, boundaries, i);
+			spcex.extendBlocks(concAction, boundaries, i, utterance);
 		}
 	}
 

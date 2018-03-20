@@ -1,6 +1,7 @@
 package edu.kit.ipd.parse.concurrency;
 
 import java.util.List;
+import java.util.Properties;
 
 import org.kohsuke.MetaInfServices;
 
@@ -18,6 +19,7 @@ import edu.kit.ipd.parse.luna.graph.IArcType;
 import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.graph.INodeType;
 import edu.kit.ipd.parse.luna.graph.ParseGraph;
+import edu.kit.ipd.parse.luna.tools.ConfigManager;
 
 @MetaInfServices(AbstractAgent.class)
 public class ConcurrencyAgent extends AbstractAgent {
@@ -38,12 +40,15 @@ public class ConcurrencyAgent extends AbstractAgent {
 	CorefExtender ce;
 	Utterance utterance;
 	List<ConcurrentAction> conActions;
+	private boolean corefEnabled = false;
 
 	@Override
 	public void init() {
 		kf = new KeyphraseFilter();
 		gf = new GrammarFilter();
 		ce = new CorefExtender();
+		Properties props = ConfigManager.getConfiguration(getClass());
+		corefEnabled = Boolean.parseBoolean(props.getProperty("COREF", "false"));
 	}
 
 	@Override
@@ -62,7 +67,9 @@ public class ConcurrencyAgent extends AbstractAgent {
 		List<Keyphrase> keywords = kf.filter(utterance.giveUtteranceAsNodeList());
 		try {
 			conActions = gf.filter(keywords);
-			ce.extendBlocks(conActions, utterance);
+			if (corefEnabled) {
+				ce.extendBlocks(conActions, utterance);
+			}
 		} catch (MissingDataException e) {
 			//TODO Logger and return!
 			// TODO Auto-generated catch block

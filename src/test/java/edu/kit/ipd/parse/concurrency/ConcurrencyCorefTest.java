@@ -107,6 +107,33 @@ public class ConcurrencyCorefTest {
 
 	}
 
+	@Test
+	public void openingCorefChainTest() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "while Bob jumps Alice looks at the chair runs to it and sits down on it";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "while" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpan = new int[] { 1, 15 };
+		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
+		Assert.assertEquals(expectedSpan[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
 	private IGraph executePreviousStages(PrePipelineData ppd) {
 		IGraph result = null;
 		try {

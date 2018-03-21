@@ -1,5 +1,7 @@
 package edu.kit.ipd.parse.concurrency.filter;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,21 +27,114 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 		if (!concurrentAction.getDependentPhrases().isEmpty()) {
 			Set<INode> entities = getEntities(concurrentAction.getDependentPhrases());
 
-			int boundary = getBoundary(boundaries, i);
 			int refPosition = getReferencePosition(concurrentAction);
+			int boundary = getBoundary(boundaries, i);
 			for (INode entity : entities) {
 				int result = getMaxPositionFromCorefChain(entity, refPosition, boundary, isLeft);
 				if (checkIfExtending(result, refPosition, boundary, isLeft)) {
 					refPosition = result;
 				}
 			}
-			List<INode> nodes = utterance.giveUtteranceAsNodeList();
-			extendDependentPhrase(concurrentAction, refPosition, getReferencePosition(concurrentAction), nodes, isLeft);
+			refPosition = determineFinalRefPosition(utterance.giveUtteranceAsNodeList().get(refPosition), boundary, isLeft);
+			extendDependentPhrase(concurrentAction, refPosition, getReferencePosition(concurrentAction),
+					utterance.giveUtteranceAsNodeList(), isLeft);
 
 		}
 	}
 
-	protected void extendDependentPhrase(ConcurrentAction concurrentAction, int refPosition, int referencePosition, List<INode> nodes,
+	private int determineFinalRefPosition(INode ref, int boundary, boolean left) throws MissingDataException {
+		int result = GrammarFilter.getPositionOfNode(ref);
+		INode predicateNode = getPredicateForNode(ref);
+		if (predicateNode != null) {
+			int position = GrammarFilter.getPositionOfNode(predicateNode);
+			if ((left && position > boundary && position < result) || (!left && position < boundary && position > result)) {
+				result = position;
+				if (left) {
+					position = determineBegin(predicateNode, boundary, left);
+					result = (position < result) ? position : result;
+				} else {
+					position = determineEnd(predicateNode, boundary, left);
+					result = (position > result) ? position : result;
+				}
+			}
+		}
+		return result;
+	}
+
+	private int determineBegin(INode startingAction, int boundary, boolean left) throws MissingDataException {
+		INode depNodeBegin = startingAction;
+		int start = GrammarFilter.getPositionOfNode(depNodeBegin);
+		List<? extends IArc> outgoingFirstActionArcs = startingAction.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType);
+		for (IArc iArc : outgoingFirstActionArcs) {
+			if (iArc.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_TYPE).toString()
+					.equalsIgnoreCase(GrammarFilter.ATTRIBUTE_VALUE_PREDICATE_TO_PARA)) {
+				INode currTargetNode = iArc.getTargetNode();
+				if ((!left && GrammarFilter.getPositionOfNode(currTargetNode) >= boundary)
+						|| (left && GrammarFilter.getPositionOfNode(currTargetNode) <= boundary)) {
+					continue;
+				}
+				if (GrammarFilter.getPositionOfNode(currTargetNode) < start) {
+					start = GrammarFilter.getPositionOfNode(currTargetNode);
+				}
+			} else {
+				continue;
+			}
+		}
+		return start;
+	}
+
+	private int determineEnd(INode endingAction, int boundary, boolean left) throws MissingDataException {
+		INode depNodeEnd = endingAction;
+		int end = GrammarFilter.getPositionOfNode(endingAction);
+		List<? extends IArc> outgoingFirstActionArcs = endingAction.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType);
+		for (IArc iArc : outgoingFirstActionArcs) {
+			if (iArc.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_TYPE).toString()
+					.equalsIgnoreCase(GrammarFilter.ATTRIBUTE_VALUE_PREDICATE_TO_PARA)) {
+				INode currTargetNode = iArc.getTargetNode();
+				if (left && GrammarFilter.getPositionOfNode(currTargetNode) <= boundary) {
+					continue;
+				}
+				if (GrammarFilter.getPositionOfNode(currTargetNode) > end) {
+					while (currTargetNode.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType).size() > 0) {
+						if (currTargetNode.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType).size() == 1) {
+							if (left && GrammarFilter.getPositionOfNode(currTargetNode
+									.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType).get(0).getTargetNode()) <= boundary) {
+								break;
+
+							}
+							currTargetNode = currTargetNode.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType).get(0)
+									.getTargetNode();
+						} else if (currTargetNode.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType).size() > 1) {
+							//TODO what iff the assumption (we only have a INSIDE_CHUNK node) doesn't hold?
+						}
+					}
+					end = GrammarFilter.getPositionOfNode(currTargetNode);
+				}
+			} else {
+				continue;
+			}
+		}
+		return end;
+	}
+
+	private INode getPredicateForNode(INode ref) {
+		if (ref.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_ROLE) != null) {
+			INode current = ref;
+			while (!current.getIncomingArcsOfType(GrammarFilter.actionAnalyzerArcType).isEmpty()
+					&& !current.getIncomingArcsOfType(GrammarFilter.actionAnalyzerArcType).get(0)
+							.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_TYPE).toString().equals("NEXT_ACTION")) {
+
+				current = current.getIncomingArcsOfType(GrammarFilter.actionAnalyzerArcType).get(0).getSourceNode();
+			}
+			if (current.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_ROLE) != null && current
+					.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_ROLE).toString().equals(GrammarFilter.ATTRIBUTE_VALUE_PREDICATE)) {
+				return current;
+			}
+		}
+		return null;
+	}
+
+	private void extendDependentPhrase(ConcurrentAction concurrentAction, int refPosition, int referencePosition, List<INode> nodes,
 			boolean left) {
 		if (left) {
 			for (int j = referencePosition - 1; j >= refPosition; j--) {
@@ -50,6 +145,17 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 				extend(concurrentAction, nodes, j);
 			}
 		}
+		Collections.sort(concurrentAction.getDependentPhrases(), new Comparator<INode>() {
+
+			@Override
+			public int compare(INode o1, INode o2) {
+				try {
+					return Integer.compare(GrammarFilter.getPositionOfNode(o1), GrammarFilter.getPositionOfNode(o2));
+				} catch (MissingDataException e) {
+					return 0;
+				}
+			}
+		});
 
 	}
 
@@ -129,7 +235,7 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 		Set<IArc> referentRelations = new HashSet<>();
 		for (IArc relation : relations) {
 			if (relation.getAttributeValue(CorefExtender.RELATION_TYPE_NAME).equals(CorefExtender.REFERENT_RELATION_TYPE)
-					&& relation.getAttributeValue("name").equals("anaphoraReferent")) {
+					&& relation.getAttributeValue(CorefExtender.REFERENT_RELATION_ROLE_NAME).equals(CorefExtender.ANAPHORA_NAME_VALUE)) {
 				if (isMostLikelyReferent(relation, relation.getSourceNode())) {
 					referentRelations.add(relation);
 				}

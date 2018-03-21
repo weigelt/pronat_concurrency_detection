@@ -26,6 +26,8 @@ public class CorefExtender {
 	static final String REFERENT_RELATION_TYPE = "referentRelation";
 	static final String RELATION_TYPE_NAME = "typeOfRelation";
 	static final String CONFIDENCE_NAME = "confidence";
+	static final String REFERENT_RELATION_ROLE_NAME = "name";
+	static final String ANAPHORA_NAME_VALUE = "anaphoraReferent";
 
 	public CorefExtender() {
 		entityReferenceArcType = pgStub.createArcType(REFERENCE);

@@ -161,6 +161,60 @@ public class ConcurrencyCorefTest {
 
 	}
 
+	@Test
+	public void wrappingCorefTestRight() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "at once the dog jumps and the horse looks at the table and runs to it";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "at", "once" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpan = new int[] { 2, 15 };
+		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
+		Assert.assertEquals(expectedSpan[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
+	@Test
+	public void wrappingCorefTestLeft() {
+		ppd = new PrePipelineData();
+		//@formatter:off
+		String input = "the dog runs to the table and jumps on it and the horse looks at once";
+		//@formatter:on
+		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
+
+		IGraph graph = executePreviousStages(ppd);
+		concAgent.setGraph(graph);
+		concAgent.exec();
+		List<ConcurrentAction> actions = concAgent.getConcurrentActions();
+		Assert.assertEquals(1, actions.size());
+		ConcurrentAction action = actions.get(0);
+		String[] expected = new String[] { "at", "once" };
+		int i = 0;
+		for (INode node : action.getKeyphrase().getAttachedNodes()) {
+			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
+			i++;
+		}
+		int[] expectedSpan = new int[] { 0, 13 };
+		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
+		Assert.assertEquals(expectedSpan[1],
+				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
+
+	}
+
 	private IGraph executePreviousStages(PrePipelineData ppd) {
 		IGraph result = null;
 		try {

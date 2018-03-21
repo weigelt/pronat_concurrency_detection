@@ -27,8 +27,8 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 		if (!concurrentAction.getDependentPhrases().isEmpty()) {
 			Set<INode> entities = getEntities(concurrentAction.getDependentPhrases());
 
-			int refPosition = getReferencePosition(concurrentAction);
-			int boundary = getBoundary(boundaries, i);
+			int refPosition = getReferencePosition(concurrentAction, isLeft);
+			int boundary = getBoundary(boundaries, i, isLeft);
 			for (INode entity : entities) {
 				int result = getMaxPositionFromCorefChain(entity, refPosition, boundary, isLeft);
 				if (checkIfExtending(result, refPosition, boundary, isLeft)) {
@@ -36,13 +36,13 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 				}
 			}
 			refPosition = determineFinalRefPosition(utterance.giveUtteranceAsNodeList().get(refPosition), boundary, isLeft);
-			extendDependentPhrase(concurrentAction, refPosition, getReferencePosition(concurrentAction),
+			extendDependentPhrase(concurrentAction, refPosition, getReferencePosition(concurrentAction, isLeft),
 					utterance.giveUtteranceAsNodeList(), isLeft);
 
 		}
 	}
 
-	private int determineFinalRefPosition(INode ref, int boundary, boolean left) throws MissingDataException {
+	protected int determineFinalRefPosition(INode ref, int boundary, boolean left) throws MissingDataException {
 		int result = GrammarFilter.getPositionOfNode(ref);
 		INode predicateNode = getPredicateForNode(ref);
 		if (predicateNode != null) {
@@ -62,8 +62,7 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 	}
 
 	private int determineBegin(INode startingAction, int boundary, boolean left) throws MissingDataException {
-		INode depNodeBegin = startingAction;
-		int start = GrammarFilter.getPositionOfNode(depNodeBegin);
+		int start = GrammarFilter.getPositionOfNode(startingAction);
 		List<? extends IArc> outgoingFirstActionArcs = startingAction.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType);
 		for (IArc iArc : outgoingFirstActionArcs) {
 			if (iArc.getAttributeValue(GrammarFilter.ATTRIBUTE_NAME_TYPE).toString()
@@ -84,7 +83,6 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 	}
 
 	private int determineEnd(INode endingAction, int boundary, boolean left) throws MissingDataException {
-		INode depNodeEnd = endingAction;
 		int end = GrammarFilter.getPositionOfNode(endingAction);
 		List<? extends IArc> outgoingFirstActionArcs = endingAction.getOutgoingArcsOfType(GrammarFilter.actionAnalyzerArcType);
 		for (IArc iArc : outgoingFirstActionArcs) {
@@ -134,7 +132,7 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 		return null;
 	}
 
-	private void extendDependentPhrase(ConcurrentAction concurrentAction, int refPosition, int referencePosition, List<INode> nodes,
+	protected void extendDependentPhrase(ConcurrentAction concurrentAction, int refPosition, int referencePosition, List<INode> nodes,
 			boolean left) {
 		if (left) {
 			for (int j = referencePosition - 1; j >= refPosition; j--) {
@@ -169,11 +167,33 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 		}
 	}
 
-	protected abstract int getReferencePosition(ConcurrentAction concurrentAction) throws MissingDataException;
+	protected int getReferencePosition(ConcurrentAction concurrentAction, boolean left) throws MissingDataException {
+		if (left) {
+			return GrammarFilter.getPositionOfNode(concurrentAction.getDependentPhrases().get(0));
 
-	protected abstract int getBoundary(List<Pair<Integer, Integer>> boundaries, int i);
+		} else {
+			return GrammarFilter
+					.getPositionOfNode(concurrentAction.getDependentPhrases().get(concurrentAction.getDependentPhrases().size() - 1));
+		}
+	}
 
-	private int getMaxPositionFromCorefChain(INode entity, int refPosition, int boundary, boolean left) throws MissingDataException {
+	protected int getBoundary(List<Pair<Integer, Integer>> boundaries, int i, boolean left) {
+		int result;
+		if (left) {
+			result = Integer.MIN_VALUE;
+			if (i > 0) {
+				result = boundaries.get(i - 1).getRight();
+			}
+		} else {
+			result = Integer.MAX_VALUE;
+			if (boundaries.size() > i + 1) {
+				result = boundaries.get(i + 1).getLeft();
+			}
+		}
+		return result;
+	}
+
+	protected int getMaxPositionFromCorefChain(INode entity, int refPosition, int boundary, boolean left) throws MissingDataException {
 		int result = refPosition;
 		Set<IArc> arcs;
 		if (left) {
@@ -205,7 +225,7 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 		return result;
 	}
 
-	private boolean checkIfExtending(int position, int previous, int boundary, boolean left) {
+	protected boolean checkIfExtending(int position, int previous, int boundary, boolean left) {
 		if (left) {
 			if (position < previous && position > boundary) {
 				return true;
@@ -258,7 +278,7 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 		return true;
 	}
 
-	private Set<INode> getEntities(List<INode> dependentPhrases) {
+	protected Set<INode> getEntities(List<INode> dependentPhrases) {
 		Set<INode> entities = new HashSet<>();
 		for (INode node : dependentPhrases) {
 			List<? extends IArc> incoming = node.getIncomingArcsOfType(CorefExtender.entityReferenceArcType);

@@ -47,8 +47,11 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 		INode predicateNode = getPredicateForNode(ref);
 		if (predicateNode != null) {
 			int position = GrammarFilter.getPositionOfNode(predicateNode);
-			if ((left && position > boundary && position < result) || (!left && position < boundary && position > result)) {
-				result = position;
+			if ((left && position > boundary) || (!left && position < boundary)) {
+				if ((left && position < result) || (!left && position > result)) {
+					result = position;
+				}
+
 				if (left) {
 					position = determineBegin(predicateNode, boundary, left);
 					result = (position < result) ? position : result;
@@ -268,7 +271,7 @@ public abstract class AbstractSpecializedCorefExtender implements ISpecializedCo
 	private boolean isMostLikelyReferent(IArc relation, INode sourceNode) {
 		double confidence = (double) relation.getAttributeValue(CorefExtender.CONFIDENCE_NAME);
 		for (IArc rel : sourceNode.getOutgoingArcsOfType(CorefExtender.contextRelationArcType)) {
-			if (relation.getAttributeValue(CorefExtender.RELATION_TYPE_NAME).equals(CorefExtender.REFERENT_RELATION_TYPE)) {
+			if (rel.getAttributeValue(CorefExtender.RELATION_TYPE_NAME).equals(CorefExtender.REFERENT_RELATION_TYPE)) {
 				if (confidence < (double) rel.getAttributeValue(CorefExtender.CONFIDENCE_NAME)) {
 					return false;
 				}

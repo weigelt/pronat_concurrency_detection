@@ -45,7 +45,7 @@ public class CorefExtender {
 				break;
 
 			case SEPARATING:
-
+				spcex = new SeparatingCorefExtender();
 				break;
 			case OPENING:
 				spcex = new OpeningCorefExtender();
@@ -56,7 +56,9 @@ public class CorefExtender {
 			default:
 				break;
 			}
-			spcex.extendBlocks(concAction, boundaries, i, utterance);
+			if (spcex != null) {
+				spcex.extendBlocks(concAction, boundaries, i, utterance);
+			}
 		}
 	}
 

@@ -481,7 +481,7 @@ public class ConcurrencyAgentTest {
 	public void endingTest4() {
 		ppd = new PrePipelineData();
 		//@formatter:off
-		String input = "get the green cup from the table then wash it and read the news simultaneously");
+		String input = "get the green cup from the table then wash it and read the news simultaneously";
 		//@formatter:on
 		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
 
@@ -508,7 +508,7 @@ public class ConcurrencyAgentTest {
 	public void separatingTestProgressive2() {
 		ppd = new PrePipelineData();
 		//@formatter:off
-		String input = "clean the green cup from the table in the sink you should check the news while cleaning it");
+		String input = "clean the green cup from the table in the sink you should check the news while cleaning it";
 		//@formatter:on
 		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
 
@@ -553,7 +553,7 @@ public class ConcurrencyAgentTest {
 	public void separatingTestProgressive3() {
 		ppd = new PrePipelineData();
 		//@formatter:off
-		String input = "clean the green cup from the table in the sink you should check the news while doing so");
+		String input = "clean the green cup from the table in the sink you should check the news while doing so";
 		//@formatter:on
 		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
 
@@ -598,7 +598,7 @@ public class ConcurrencyAgentTest {
 	public void openingTest2() {
 		ppd = new PrePipelineData();
 		//@formatter:off
-		String input = "get the green cup on the table and bring it to the sink afterwards wash it and read the news");
+		String input = "get the green cup on the table and bring it to the sink afterwards wash it and read the news";
 		//@formatter:on
 		ppd.setMainHypothesis(StringToHypothesis.stringToMainHypothesis(input, true));
 

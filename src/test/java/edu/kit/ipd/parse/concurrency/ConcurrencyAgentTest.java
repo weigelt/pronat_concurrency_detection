@@ -377,7 +377,7 @@ public class ConcurrencyAgentTest {
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 	}
 
-	@Ignore("TODO")
+	@Ignore("you not inside because action recognizer fails")
 	@Test
 	public void separatingTestImperative2() {
 		ppd = new PrePipelineData();
@@ -422,7 +422,6 @@ public class ConcurrencyAgentTest {
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 	}
 
-	@Ignore("TODO")
 	@Test
 	public void endingTest2() {
 		ppd = new PrePipelineData();
@@ -443,13 +442,12 @@ public class ConcurrencyAgentTest {
 			Assert.assertEquals(expected[i], node.getAttributeValue("value").toString());
 			i++;
 		}
-		int[] expectedSpan = new int[] { 21, 30 };
+		int[] expectedSpan = new int[] { 21, 26 };
 		Assert.assertEquals(expectedSpan[0], action.getDependentPhrases().get(0).getAttributeValue("position"));
 		Assert.assertEquals(expectedSpan[1],
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 	}
 
-	@Ignore("TODO")
 	@Test
 	public void endingTest3() {
 		ppd = new PrePipelineData();
@@ -476,7 +474,6 @@ public class ConcurrencyAgentTest {
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 	}
 
-	@Ignore("TODO")
 	@Test
 	public void endingTest4() {
 		ppd = new PrePipelineData();
@@ -503,7 +500,7 @@ public class ConcurrencyAgentTest {
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 	}
 
-	@Ignore("TODO")
+	@Ignore("you is missing as actor for action check")
 	@Test
 	public void separatingTestProgressive2() {
 		ppd = new PrePipelineData();
@@ -548,7 +545,7 @@ public class ConcurrencyAgentTest {
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 	}
 
-	@Ignore("TODO")
+	@Ignore("you is missing as actor for action check")
 	@Test
 	public void separatingTestProgressive3() {
 		ppd = new PrePipelineData();
@@ -593,7 +590,7 @@ public class ConcurrencyAgentTest {
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 	}
 
-	@Ignore("TODO")
+	@Ignore("No concurrency decideable")
 	@Test
 	public void openingTest2() {
 		ppd = new PrePipelineData();

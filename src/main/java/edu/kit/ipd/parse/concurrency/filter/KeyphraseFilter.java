@@ -48,8 +48,8 @@ public class KeyphraseFilter {
 		while (i < utteranceAsNodeList.size()) {
 
 			Keyphrase curr = checkKeyphrases(utteranceAsNodeList, wrappingKeyphrases, KeyphraseType.WRAPPING, i);
-			curr = decidePrimaryOrSecondary(utteranceAsNodeList, i, curr, separatingKeyphrases, KeyphraseType.SEPARATING);
 			curr = decidePrimaryOrSecondary(utteranceAsNodeList, i, curr, openingKeyphrases, KeyphraseType.OPENING);
+			curr = decidePrimaryOrSecondary(utteranceAsNodeList, i, curr, separatingKeyphrases, KeyphraseType.SEPARATING);
 			curr = decidePrimaryOrSecondary(utteranceAsNodeList, i, curr, endingKeyphrases, KeyphraseType.ENDING);
 			if (curr != null) {
 				keyphrases.add(curr);

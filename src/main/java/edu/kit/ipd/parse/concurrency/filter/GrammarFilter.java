@@ -25,6 +25,7 @@ public class GrammarFilter {
 	static final String ATTRIBUTE_NAME_POSITION = "position";
 	static final String ARC_TYPE_RELATION = "relation";
 	static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
+	static final String ATTRIBUTE_NAME_INSTRUCTION = "instructionNumber";
 	static IArcType actionAnalyzerArcType;
 	static IArcType nextArcType;
 
@@ -86,6 +87,11 @@ public class GrammarFilter {
 		//			throw new MissingDataException("Node has no position attribute");
 		//		}
 		return (int) node.getAttributeValue(ATTRIBUTE_NAME_POSITION);
+	}
+
+	static int getInstructionNumber(INode node) {
+		// TODO Auto-generated method stub
+		return (int) node.getAttributeValue(ATTRIBUTE_NAME_INSTRUCTION);
 	}
 
 	static boolean findActionNodes(INode[] actions, boolean left) {

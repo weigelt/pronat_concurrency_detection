@@ -141,7 +141,7 @@ public class KeyphraseFilterTest {
 			inputNodeList.add(currNode);
 		}
 		String[] expected = new String[] { "while" };
-		String expectedType = "SEPARATING";
+		String expectedType = "OPENING";
 		List<Keyphrase> result = new KeyphraseFilter().filter(inputNodeList);
 		for (Keyphrase keyphrase : result) {
 			int i = 0;

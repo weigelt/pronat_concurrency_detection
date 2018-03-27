@@ -500,7 +500,7 @@ public class ConcurrencyAgentTest {
 				action.getDependentPhrases().get(action.getDependentPhrases().size() - 1).getAttributeValue("position"));
 	}
 
-	@Ignore("you is missing as actor for action check")
+	//@Ignore("you is missing as actor for action check")
 	@Test
 	public void separatingTestProgressive2() {
 		ppd = new PrePipelineData();

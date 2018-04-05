@@ -101,7 +101,7 @@ public class ConcurrentAction {
 			if (i + 1 < dependentPhrases.size()
 					&& (int) nodeToWrite.getAttributeValue("position") < (int) dependentPhrases.get(i + 1).getAttributeValue("position")) {
 				j++;
-				out.trim();
+				out = out.trim();
 				out += ", ";
 			}
 		}

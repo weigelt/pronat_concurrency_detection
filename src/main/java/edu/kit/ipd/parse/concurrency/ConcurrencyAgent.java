@@ -202,7 +202,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 		if (!graph.hasArcType(ARC_TYPE_DEPENDENT_ACTION)) {
 			IArcType daat = graph.createArcType(ARC_TYPE_DEPENDENT_ACTION);
 			daat.addAttributeToType("int", "position");
-			daat.addAttributeToType("String", "verfiedByDA");
+			daat.addAttributeToType("boolean", "verfiedByDA");
 			return daat;
 		} else {
 			return graph.getArcType(ARC_TYPE_DEPENDENT_ACTION);

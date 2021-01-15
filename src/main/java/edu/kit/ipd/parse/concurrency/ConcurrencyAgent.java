@@ -44,9 +44,12 @@ public class ConcurrencyAgent extends AbstractAgent {
 	List<ConcurrentAction> conActions;
 	private boolean corefEnabled = false;
 
+	public ConcurrencyAgent() {
+		setId(ID);
+	}
+
 	@Override
 	public void init() {
-		super.setId(ID);
 		kf = new KeyphraseFilter();
 		gf = new GrammarFilter();
 		ce = new CorefExtender();

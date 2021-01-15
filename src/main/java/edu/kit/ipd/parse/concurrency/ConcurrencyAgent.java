@@ -24,6 +24,8 @@ import edu.kit.ipd.parse.luna.tools.ConfigManager;
 @MetaInfServices(AbstractAgent.class)
 public class ConcurrencyAgent extends AbstractAgent {
 
+	private static final String ID = "concurrencyAnalyzer";
+
 	private static final String NODE_TYPE_TOKEN = "token";
 	private static final String ARC_TYPE_RELATION = "relation";
 	private static final String ARC_TYPE_RELATION_IN_ACTION = "relationInAction";
@@ -44,6 +46,7 @@ public class ConcurrencyAgent extends AbstractAgent {
 
 	@Override
 	public void init() {
+		super.setId(ID);
 		kf = new KeyphraseFilter();
 		gf = new GrammarFilter();
 		ce = new CorefExtender();

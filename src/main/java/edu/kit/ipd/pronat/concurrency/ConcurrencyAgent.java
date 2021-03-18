@@ -20,9 +20,12 @@ import edu.kit.ipd.parse.luna.graph.INode;
 import edu.kit.ipd.parse.luna.graph.INodeType;
 import edu.kit.ipd.parse.luna.graph.ParseGraph;
 import edu.kit.ipd.parse.luna.tools.ConfigManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Sebastian Weigelt
+ * @author Tobias Hey
  */
 @MetaInfServices(AbstractAgent.class)
 public class ConcurrencyAgent extends AbstractAgent {
@@ -46,6 +49,8 @@ public class ConcurrencyAgent extends AbstractAgent {
 	Utterance utterance;
 	List<ConcurrentAction> conActions;
 	private boolean corefEnabled = false;
+
+	private static final Logger logger = LoggerFactory.getLogger(ConcurrencyAgent.class);
 
 	public ConcurrencyAgent() {
 		setId(ID);
@@ -80,9 +85,9 @@ public class ConcurrencyAgent extends AbstractAgent {
 				ce.extendBlocks(conActions, utterance);
 			}
 		} catch (MissingDataException e) {
-			//TODO Logger and return!
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Mandatory data is missing (from the pre-pipeline)!", e);
+			//			e.printStackTrace();
+			return;
 		}
 		//TODO: add optional filter for coref or eventcoref?
 		writeToGraph(conActions);
@@ -160,6 +165,8 @@ public class ConcurrencyAgent extends AbstractAgent {
 									.equals(currKPtoWrite.getAttachedNodes().get(i - 1))) {
 								// but it's not the right one
 								// TODO: what now? Throw an exception?
+								logger.warn("Visited unexpected node during graph analysis: {}",
+										currKPtoWrite.getAttachedNodes().get(i - 1));
 							}
 							// it's the right node... everything's fine!
 						}
